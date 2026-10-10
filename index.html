@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#bfe3ee" />
+    <title>Desk Drawer</title>
+  </head>
+  <body>
+    <div class="wrap">
+      <header id="appHeader">
+        <div>
+          <h1>Desk Drawer</h1>
+          <p class="sub">Your small desktop toolbox. Ctrl+Shift+Space toggles this window.</p>
+          <p class="sub" id="hotkeyWarning" role="status" hidden></p>
+        </div>
+        <div class="header-actions">
+          <button class="theme" id="theme" type="button"></button>
+          <div class="soft-window-controls" aria-label="Window controls">
+            <button type="button" id="softMinimize" aria-label="Minimize window" title="Minimize">−</button>
+            <button type="button" id="softMaximize" aria-label="Maximize window" title="Maximize">□</button>
+            <button type="button" id="softClose" aria-label="Close window" title="Close">×</button>
+          </div>
+        </div>
+      </header>
+
+      <div class="drawers" id="moduleTabs" role="tablist" aria-label="Drawers">
+        <button class="drawer" type="button" role="tab" data-p="clip" data-key="1" aria-selected="false">Clipboard<small>press 1</small></button>
+        <button class="drawer" type="button" role="tab" data-p="links" data-key="2" aria-selected="false">Links<small>press 2</small></button>
+        <button class="drawer" type="button" role="tab" data-p="lay" data-key="3" aria-selected="false">Layouts<small>press 3</small></button>
+        <button class="drawer" type="button" role="tab" data-p="ren" data-key="4" aria-selected="false">Rename<small>press 4</small></button>
+        <button class="drawer" type="button" role="tab" data-p="brk" data-key="5" aria-selected="false">Break Buddy<small>press 5</small></button>
+        <button class="drawer" type="button" role="tab" data-p="modules" data-key="6" aria-selected="true">Modules<small>press 6</small></button>
+        <button class="drawer" type="button" role="tab" data-p="settings" data-key="7" aria-selected="false">Settings<small>press 7</small></button>
+        <button class="drawer" type="button" role="tab" data-p="behavior" data-key="8" aria-selected="false">Behavior Lab<small>press 8</small></button>
+      </div>
+
+      <section class="panel" id="p-clip" role="tabpanel">
+        <h2>Clipboard</h2>
+        <p class="hint">Recent text, links, and colors stay on this device. Unpinned items expire after 24 hours.</p>
+        <div class="row">
+          <input type="text" id="clipIn" placeholder="Type something to save" aria-label="Text to save">
+          <button class="btn" id="clipAdd" type="button">Save</button>
+          <button class="btn alt" id="clipPaste" type="button">Grab clipboard</button>
+          <button class="btn alt" id="clipPause" type="button" aria-pressed="false">Pause history</button>
+          <button class="btn alt" id="clipClear" type="button">Clear</button>
+        </div>
+        <input type="text" id="clipSearch" placeholder="Search clipboard history" aria-label="Search clipboard history">
+        <ul class="clips empty-state" id="clips" data-empty-message="No clipboard items match."></ul>
+      </section>
+
+      <section class="panel" id="p-links" role="tabpanel" hidden>
+        <h2>Links</h2>
+        <p class="hint">Save URLs, folders, and apps for quick access.</p>
+        <form id="linkForm">
+          <div class="row">
+            <input type="text" id="linkTitle" maxlength="120" placeholder="Name" aria-label="Link name" required>
+            <select id="linkKind" aria-label="Link type">
+              <option value="url">Website</option>
+              <option value="folder">Folder</option>
+              <option value="app">App</option>
+            </select>
+          </div>
+          <div class="row">
+            <input type="text" id="linkTarget" placeholder="https://example.com or local path" aria-label="Website or local path" required>
+            <button class="btn alt" id="linkBrowse" type="button">Browse</button>
+          </div>
+          <div class="row">
+            <input type="text" id="linkTags" placeholder="Tags, separated by commas" aria-label="Tags">
+            <button class="btn" id="linkSave" type="submit">Save link</button>
+            <button class="btn alt" id="linkCancel" type="button" hidden>Cancel edit</button>
+          </div>
+        </form>
+        <input type="text" id="linkSearch" placeholder="Search saved links and tags" aria-label="Search saved links">
+        <ul class="saved-links empty-state" id="savedLinks" data-empty-message="No saved links yet."></ul>
+      </section>
+
+      <section class="panel" id="p-lay" role="tabpanel" hidden>
+        <h2>Layouts</h2>
+        <p class="hint">Pick a layout and your open windows snap into place.</p>
+        <div class="screen" id="screen">
+          <div class="win" data-w="0">Editor</div>
+          <div class="win" data-w="1">Browser</div>
+          <div class="win" data-w="2">Notes</div>
+        </div>
+        <div class="row">
+          <button class="btn" data-l="coding" type="button">Coding</button>
+          <button class="btn alt" data-l="writing" type="button">Writing</button>
+          <button class="btn alt" data-l="call" type="button">Video call</button>
+        </div>
+      </section>
+
+      <section class="panel" id="p-ren" role="tabpanel" hidden>
+        <h2>Rename</h2>
+        <p class="hint">Drop files here, choose a pattern, and check the preview. Use {name}, {n} and {date}.</p>
+        <button class="drop" id="chooseFiles" type="button">Choose files or drop them here</button>
+        <div class="row">
+          <input type="text" id="pattern" value="{date}_{name}" aria-label="Rename pattern">
+          <button class="btn" id="renBtn" type="button">Rename files</button>
+        </div>
+        <ul class="names empty-state" id="names" data-empty-message="No files selected yet."></ul>
+      </section>
+
+      <section class="panel" id="p-brk" role="tabpanel" hidden>
+        <h2>Break buddy</h2>
+        <p class="hint">Every 20 minutes your buddy walks out and asks you to look away from the screen. Try it now.</p>
+        <div class="row">
+          <button class="btn" id="breakBtn" type="button">Send buddy out</button>
+          <button class="btn alt" id="breakStop" type="button">Dismiss</button>
+        </div>
+        <div class="buddy-personality" aria-label="Temporary buddy personality preview">
+          <p class="hint">Personality preview (these sliders reset when the app restarts).</p>
+          <label for="buddyEnergy">Energy <input id="buddyEnergy" type="range" min="0" max="100" value="60"></label>
+          <label for="buddyCuriosity">Curiosity <input id="buddyCuriosity" type="range" min="0" max="100" value="60"></label>
+          <label for="buddyChattiness">Chattiness <input id="buddyChattiness" type="range" min="0" max="100" value="40"></label>
+          <label for="buddyClinginess">Clinginess <input id="buddyClinginess" type="range" min="0" max="100" value="20"></label>
+          <label for="buddySleepiness">Sleepiness <input id="buddySleepiness" type="range" min="0" max="100" value="70"></label>
+        </div>
+        <p class="hint" id="breakNote">Your buddy is napping on the desk.</p>
+      </section>
+
+      <section class="panel" id="p-color" role="tabpanel" hidden>
+        <h2>Color picker</h2>
+        <p class="hint">Choose a color and copy its values. Color samples stay local to this window.</p>
+        <div class="utility-color">
+          <div id="colorSwatch" aria-label="Selected color preview"></div>
+          <label for="pickedColor">Choose color <input id="pickedColor" type="color" value="#E8A66A"></label>
+        </div>
+        <p id="colorHex" class="color-value"></p>
+        <p id="colorRgb" class="color-value"></p>
+        <p id="colorHsl" class="color-value"></p>
+        <button class="btn" id="copyPickedColor" type="button">Copy hex</button>
+      </section>
+
+      <section class="panel" id="p-awake" role="tabpanel" hidden>
+        <h2>Keep awake</h2>
+        <p class="hint">Temporarily prevents Windows from sleeping and turning off the display. It stops when you turn it off or disable this module.</p>
+        <button class="btn" id="keepAwakeToggle" type="button" aria-pressed="false">Keep this PC awake</button>
+        <p id="keepAwakeStatus" class="hint" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="panel" id="p-pin" role="tabpanel" hidden>
+        <h2>Pin window</h2>
+        <p class="hint">Keep Desk Drawer above other windows while you work.</p>
+        <button class="btn" id="pinWindowToggle" type="button" aria-pressed="false">Pin Desk Drawer on top</button>
+        <p id="pinWindowStatus" class="hint" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="panel" id="p-notes" role="tabpanel" hidden>
+        <h2>Scratch notes</h2>
+        <p class="hint">A private note saved on this device. No sync or network access.</p>
+        <textarea id="scratchNotes" rows="10" maxlength="100000" aria-label="Scratch notes"></textarea>
+        <div class="row"><button class="btn" id="saveScratchNotes" type="button">Save notes</button></div>
+        <p id="notesStatus" class="hint" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="panel" id="p-focus" role="tabpanel" hidden>
+        <h2>Focus timer</h2>
+        <p class="hint">Choose any duration from 1 minute to 7 days and customize the countdown color. Your buddy naps while the timer runs.</p>
+        <label for="focusMinutes">Focus minutes
+          <input id="focusMinutes" type="number" min="1" max="10080" step="1" value="25" inputmode="numeric">
+        </label>
+        <label for="focusTimerTextColor">Countdown text color
+          <input id="focusTimerTextColor" type="color" value="#3b3350">
+        </label>
+        <button class="btn alt" id="resetFocusTimerColor" type="button">Use theme text color</button>
+        <p id="focusTimerSettingsStatus" class="hint" role="status" aria-live="polite">Color and duration save automatically.</p>
+        <p id="focusCountdown" class="focus-countdown" role="timer" aria-live="off">Ready when you are.</p>
+        <div class="row">
+          <button class="btn" id="startFocus" type="button">Start focus</button>
+          <button class="btn alt" id="stopFocus" type="button" disabled>Stop</button>
+        </div>
+      </section>
+
+      <section class="panel" id="p-tidy" role="tabpanel" hidden>
+        <h2>Tidy Downloads</h2>
+        <p class="hint">Choose a folder to see a complete preview. Files move only after confirmation; undo restores them if the originals are still available.</p>
+        <div class="row">
+          <button class="btn alt" id="chooseTidyFolder" type="button">Choose folder</button>
+          <button class="btn" id="runTidy" type="button" disabled>Move files</button>
+          <button class="btn alt" id="undoTidy" type="button" disabled>Undo</button>
+        </div>
+        <p id="tidyFolder" class="hint" aria-live="polite"></p>
+        <ul id="tidyPreview" class="tidy-preview"></ul>
+        <p id="tidyStatus" class="hint" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="panel" id="p-scenes" role="tabpanel" hidden>
+        <h2>Scenes</h2>
+        <p class="hint">Save a built-in window layout with a focus timer and optional break notification.</p>
+        <div class="row">
+          <input id="sceneName" type="text" maxlength="80" placeholder="Scene name" aria-label="Scene name">
+          <select id="sceneLayout" aria-label="Scene layout">
+            <option value="coding">Coding</option>
+            <option value="writing">Writing</option>
+            <option value="call">Video call</option>
+          </select>
+          <label for="sceneFocusMinutes">Focus minutes
+            <input id="sceneFocusMinutes" type="number" min="1" max="10080" step="1" value="25" inputmode="numeric">
+          </label>
+          <label class="inline-setting"><input id="sceneBreakAfter" type="checkbox"> Break after focus</label>
+          <button class="btn" id="saveScene" type="button">Save scene</button>
+        </div>
+        <fieldset class="scene-apps">
+          <legend>Open saved links, folders, or apps</legend>
+          <div id="sceneLinks"></div>
+        </fieldset>
+        <ul id="savedScenes" class="scene-list empty-state" data-empty-message="No scenes saved yet."></ul>
+      </section>
+
+      <section class="panel" id="p-modules" role="tabpanel" hidden>
+        <h2>Modules</h2>
+        <p class="hint">Turn each toolbox drawer on or off. Disabled modules do not load their handlers or run timers. Use M, S and B for Modules, Settings and Behavior Lab.</p>
+        <p class="hint" id="bootStatus" role="status" aria-live="polite" aria-busy="true">Loading saved settings and modules…</p>
+        <div id="moduleList"></div>
+      </section>
+
+      <section class="panel" id="p-settings" role="tabpanel" hidden>
+        <h2>Settings</h2>
+        <p class="hint">Search by setting name or description. Changes save on this device.</p>
+        <label class="settings-search" for="settingsSearch">
+          <span>Find a setting</span>
+          <input id="settingsSearch" type="search" autocomplete="off" placeholder="Try “keep running when closed”">
+        </label>
+        <div class="settings-search-results" id="settingsSearchResults" role="group" aria-label="Matching settings" hidden></div>
+        <p class="hint" id="settingsSearchStatus" role="status" aria-live="polite"></p>
+        <div class="settings-layout">
+          <nav class="settings-nav" id="settingsNav" role="tablist" aria-label="Settings sections">
+            <button class="settings-nav-item" type="button" role="tab" id="settings-tab-general" aria-controls="settings-page-general" aria-selected="true" data-settings-section="general">General</button>
+            <button class="settings-nav-item" type="button" role="tab" id="settings-tab-appearance" aria-controls="settings-page-appearance" aria-selected="false" data-settings-section="appearance">Appearance</button>
+            <button class="settings-nav-item" type="button" role="tab" id="settings-tab-buddy" aria-controls="settings-page-buddy" aria-selected="false" data-settings-section="buddy">Buddy</button>
+            <button class="settings-nav-item" type="button" role="tab" id="settings-tab-animations" aria-controls="settings-page-animations" aria-selected="false" data-settings-section="animations">Animations</button>
+            <button class="settings-nav-item" type="button" role="tab" id="settings-tab-modules" aria-controls="settings-page-modules" aria-selected="false" data-settings-section="modules">Modules</button>
+            <button class="settings-nav-item" type="button" role="tab" id="settings-tab-behavior" aria-controls="settings-page-behavior" aria-selected="false" data-settings-section="behavior">Behavior Lab</button>
+            <button class="settings-nav-item" type="button" role="tab" id="settings-tab-privacy" aria-controls="settings-page-privacy" aria-selected="false" data-settings-section="privacy">Privacy and Permissions</button>
+            <button class="settings-nav-item" type="button" role="tab" id="settings-tab-hotkeys" aria-controls="settings-page-hotkeys" aria-selected="false" data-settings-section="hotkeys">Hotkeys</button>
+            <button class="settings-nav-item" type="button" role="tab" id="settings-tab-data" aria-controls="settings-page-data" aria-selected="false" data-settings-section="data">Data</button>
+            <button class="settings-nav-item" type="button" role="tab" id="settings-tab-advanced" aria-controls="settings-page-advanced" aria-selected="false" data-settings-section="advanced">Advanced</button>
+            <button class="settings-nav-item" type="button" role="tab" id="settings-tab-about" aria-controls="settings-page-about" aria-selected="false" data-settings-section="about">About</button>
+          </nav>
+          <div class="settings-pages">
+            <section class="settings-page" id="settings-page-general" role="tabpanel" aria-labelledby="settings-tab-general" data-settings-page="general">
+              <h3>General</h3>
+              <p class="hint">Choose how Desk Drawer behaves when you close it or sign in.</p>
+              <label class="setting" for="closeToTray">
+                <input id="closeToTray" type="checkbox" data-setting-id="close-to-tray">
+                <span><strong>Close to tray</strong><small>Keep clipboard history and break reminders running when the window closes.</small></span>
+              </label>
+              <label class="setting" for="launchAtLogin">
+                <input id="launchAtLogin" type="checkbox" data-setting-id="launch-at-login">
+                <span><strong>Launch at login</strong><small>Start Desk Drawer hidden in the tray when you sign in to Windows.</small></span>
+              </label>
+              <button class="btn alt settings-reset" type="button" data-reset-settings="general">Reset General settings</button>
+            </section>
+            <section class="settings-page" id="settings-page-appearance" role="tabpanel" aria-labelledby="settings-tab-appearance" data-settings-page="appearance" hidden>
+              <h3>Appearance</h3>
+              <p class="hint">Preview visual changes as you make them.</p>
+              <label class="setting" for="windowStyle">
+                <span><strong>Window style</strong><small>Native keeps the normal Windows title bar. Soft removes it and uses a 24 px transparent margin; drag and resize controls are rebuilt. Window physics work only in Soft style.</small></span>
+                <select id="windowStyle" data-setting-id="window-style">
+                  <option value="native">Native</option>
+                  <option value="soft">Soft</option>
+                </select>
+              </label>
+              <label class="setting" for="settingsTheme">
+                <span><strong>Active theme</strong><small>Choose a theme card. Hover or focus a card to preview; activate it to apply.</small></span>
+                <select id="settingsTheme" data-setting-id="theme" aria-label="Active theme"></select>
+              </label>
+              <label class="setting" for="themeFontSelect">
+                <span><strong>Interface font</strong><small>Follow the theme, or choose a bundled pixel, readable, or monospace font.</small></span>
+                <select id="themeFontSelect">
+                  <option value="">Follow theme</option>
+                  <option value="pixel">Pixel</option>
+                  <option value="readable">Readable</option>
+                  <option value="mono">Monospace</option>
+                </select>
+              </label>
+              <div id="themeGallery" class="theme-gallery" role="list" aria-label="Available themes"></div>
+              <p id="themeCount" class="hint" role="status"></p>
+              <p id="themeContrastStatus" class="hint" role="status" aria-live="polite"></p>
+              <div class="row">
+                <button class="btn alt" id="themeAutoFixButton" type="button" hidden>Fix automatically</button>
+                <button class="btn alt" id="themePreviewRevert" type="button">Revert preview</button>
+              </div>
+              <div id="themeColorEditor" class="theme-color-editor"></div>
+              <button class="btn alt" id="themeSaveEditsButton" type="button" hidden>Save theme edits</button>
+              <div class="row">
+                <button class="btn alt" id="themeImportButton" type="button">Import theme</button>
+                <button class="btn alt" id="themeExportButton" type="button">Export theme</button>
+                <label>New theme name<input id="themeDuplicateName" type="text" maxlength="60" aria-label="Name for duplicated theme"></label>
+                <button class="btn alt" id="themeDuplicateButton" type="button">Duplicate theme</button>
+                <button class="btn alt" id="themeResetButton" type="button">Reset built-in</button>
+              </div>
+              <label class="setting" for="themeAccentEditor">
+                <span><strong>Accent override</strong><small>Applies to this session's theme presentation; contrast checks are shown above.</small></span>
+                <input id="themeAccentEditor" type="color" value="#ff6f91" aria-label="Theme accent override">
+              </label>
+              <label class="setting" for="themeFollowSystem">
+                <span><strong>Follow system light and dark</strong><small>Use a separate theme for Windows light and dark appearance.</small></span>
+                <input id="themeFollowSystem" type="checkbox">
+              </label>
+              <div class="row">
+                <label>Light theme<select id="lightThemeSelect" aria-label="Light appearance theme"></select></label>
+                <label>Dark theme<select id="darkThemeSelect" aria-label="Dark appearance theme"></select></label>
+              </div>
+              <label class="setting" for="themeScheduleEnabled">
+                <span><strong>Use fixed-time theme schedule</strong><small>Uses local clock times only; no location or network access.</small></span>
+                <input id="themeScheduleEnabled" type="checkbox">
+              </label>
+              <label class="setting" for="themeBuddyFollows">
+                <span><strong>Buddy follows theme colors</strong><small>Only affects compatible skins that declare a palette map.</small></span>
+                <input id="themeBuddyFollows" type="checkbox">
+              </label>
+              <div class="row">
+                <label for="themeStickerSelect">Theme sticker assets<select id="themeStickerSelect"></select></label>
+                <button class="btn alt" id="addThemeSticker" type="button" disabled>Add selected sticker to desk</button>
+              </div>
+              <div class="row">
+                <label>Light starts<input id="themeLightStart" type="time" value="07:00"></label>
+                <label>Dark starts<input id="themeDarkStart" type="time" value="19:00"></label>
+              </div>
+              <label class="setting" id="glassOpacitySetting" for="glassOpacity">
+                <span><strong>Panel opacity <output id="glassOpacityValue">100%</output></strong><small>Frost and Transparent panels use this override. Frost falls back to a solid color if the Windows material is unavailable.</small></span>
+                <input id="glassOpacity" type="range" min="0" max="100" value="100" data-setting-id="theme-panel-opacity" disabled>
+              </label>
+              <div class="row">
+                <button class="btn alt" id="chooseDeskBackground" type="button" data-setting-id="desk-background">Choose desk background</button>
+                <button class="btn alt" id="clearDeskBackground" type="button" disabled>Clear background</button>
+                <button class="btn alt" id="addDeskSticker" type="button" data-setting-id="desk-stickers">Add sticker</button>
+                <button class="btn alt" id="clearDeskStickers" type="button" disabled>Clear stickers</button>
+              </div>
+              <p class="hint" id="deskCustomizationStatus" role="status" aria-live="polite">Images: PNG, JPEG, WebP or GIF, up to 5 MB, 4096 px per side and 4 megapixels total. SVG is not supported.</p>
+              <button class="btn alt settings-reset" type="button" data-reset-settings="appearance">Reset Appearance settings</button>
+            </section>
+            <section class="settings-page" id="settings-page-buddy" role="tabpanel" aria-labelledby="settings-tab-buddy" data-settings-page="buddy" hidden>
+              <h3>Buddy</h3>
+              <p class="hint">Your active buddy stays on the desk and can react, nap, walk, and be petted. Behavior rules cannot hide it. Roaming still respects locked-screen and full-screen safety.</p>
+              <label class="setting" for="buddyMode">
+                <span><strong>Buddy mode</strong><small>Keep the buddy in the desk, let it roam the desktop, or turn it off.</small></span>
+                <select id="buddyMode" data-setting-id="buddy-mode">
+                  <option value="desk">In desk only</option>
+                  <option value="roam">Roam desktop</option>
+                  <option value="off">Off</option>
+                </select>
+              </label>
+              <label class="setting" for="buddyPackPicker">
+                <span><strong>Choose your buddy</strong><small>Switching applies that pack's validated sprite, animations, personality, and behavior rules immediately.</small></span>
+                <select id="buddyPackPicker" aria-label="Active buddy pack">
+                  <option value="">Loading installed buddies…</option>
+                </select>
+              </label>
+              <p id="buddyPackStatus" class="hint" role="status" aria-live="polite"></p>
+              <h4>Add a built-in slime</h4>
+              <div class="row">
+                <button class="btn alt" type="button" data-install-buddy-pack="lime-slime" data-enable-after-install="true">Use Lime Slime</button>
+                <button class="btn alt" type="button" data-install-buddy-pack="aqua-slime" data-enable-after-install="true">Use Aqua Slime</button>
+                <button class="btn alt" type="button" data-install-buddy-pack="berry-slime" data-enable-after-install="true">Use Berry Slime</button>
+              </div>
+              <h4>Create a buddy</h4>
+              <p class="hint">Import a PNG sprite sheet on a 32×32 grid with at least 57 frames, laid out in the same animation order as the bundled buddy sheets. Custom buddies use your Behavior Lab rules, including future edits.</p>
+              <div class="row buddy-customizer">
+                <label for="customBuddyName">Buddy name
+                  <input id="customBuddyName" type="text" maxlength="60" placeholder="My buddy">
+                </label>
+                <button class="btn" id="createCustomBuddy" type="button">Add sprite sheet and create buddy</button>
+              </div>
+              <p id="customBuddyStatus" class="hint" role="status" aria-live="polite"></p>
+              <button class="btn alt settings-reset" type="button" data-reset-settings="buddy">Reset Buddy settings</button>
+            </section>
+            <section class="settings-page" id="settings-page-animations" role="tabpanel" aria-labelledby="settings-tab-animations" data-settings-page="animations" hidden>
+              <h3>Animations</h3>
+              <p class="hint">Choose how interface changes move. Windows reduced motion and Eco mode take priority over optional effects.</p>
+              <label class="setting" for="animationsEnabled">
+                <input id="animationsEnabled" type="checkbox" data-setting-id="animations-enabled" checked>
+                <span><strong>Enable animations</strong><small>Master switch for interface transitions and buddy motion. Windows reduced motion and Eco mode can still turn optional effects off.</small></span>
+              </label>
+              <label class="setting" for="ecoMode">
+                <input id="ecoMode" type="checkbox">
+                <span><strong>Eco mode</strong><small>Reduce buddy and rendering update rates; pause optional interface motion and particles. Windows reduced motion still takes priority.</small></span>
+              </label>
+              <label class="setting" for="animationIntensity">
+                <span><strong>Intensity</strong><small>Calm minimizes bounce; Lively adds more follow-through. Off disables optional motion.</small></span>
+                <select id="animationIntensity" data-setting-id="animation-intensity">
+                  <option value="off">Off</option><option value="calm">Calm</option><option value="lively">Lively</option>
+                </select>
+              </label>
+              <label class="setting" for="animationSpeed">
+                <span><strong>Speed <output id="animationSpeedValue">1.0×</output></strong><small>Adjusts animation speed from 0.5× to 2×.</small></span>
+                <input id="animationSpeed" type="range" min="0.5" max="2" step="0.1" value="1" data-setting-id="animation-speed">
+              </label>
+              <label class="setting" for="animationStiffness">
+                <span><strong>Stiffness <output id="animationStiffnessValue">900</output></strong><small>Higher stiffness returns springs to rest sooner.</small></span>
+                <input id="animationStiffness" type="range" min="100" max="1000" step="25" value="900" data-setting-id="animation-stiffness">
+              </label>
+              <label class="setting" for="animationBounciness">
+                <span><strong>Bounciness <output id="animationBouncinessValue">50%</output></strong><small>Controls the spring’s overshoot and settle.</small></span>
+                <input id="animationBounciness" type="range" min="0" max="1" step="0.05" value="0.5" data-setting-id="animation-bounciness">
+              </label>
+              <h4>Effect controls</h4>
+              <label class="setting" for="buddyMovementEnabled"><input id="buddyMovementEnabled" type="checkbox"><span><strong>Buddy movement</strong><small>Allow the buddy to wander according to its personality. Mouse pickup and placement remain available when off.</small></span></label>
+              <label class="setting" for="buddyAnimationsEnabled"><input id="buddyAnimationsEnabled" type="checkbox"><span><strong>Buddy sprite animation</strong><small>Play the active sprite sheet's animation frames. The buddy remains visible when off.</small></span></label>
+              <label class="setting" for="motionJelly"><input id="motionJelly" type="checkbox"><span><strong>Soft-window jelly drag</strong><small>Spring sway while moving the window; only available in Soft style.</small></span></label>
+              <label class="setting" for="motionOpenClose"><input id="motionOpenClose" type="checkbox"><span><strong>Window open and close</strong><small>Scale and fade the Soft window when showing or hiding it.</small></span></label>
+              <label class="setting" for="motionHideTray"><input id="motionHideTray" type="checkbox"><span><strong>Hide to tray</strong><small>Use a short scale and perspective transition before hiding.</small></span></label>
+              <label class="setting" for="motionResize"><input id="motionResize" type="checkbox"><span><strong>Elastic resize</strong><small>Ease Soft window content after a resize.</small></span></label>
+              <label class="setting" for="motionBuddyTransitions"><input id="motionBuddyTransitions" type="checkbox"><span><strong>Buddy state transitions</strong><small>Blend sprite states and use anticipation before walking.</small></span></label>
+              <label class="setting" for="motionBuddyImpacts"><input id="motionBuddyImpacts" type="checkbox"><span><strong>Buddy impact squash and stretch</strong><small>Use a small settle when picked up, dropped, or petted.</small></span></label>
+              <label class="setting" for="motionSticker"><input id="motionSticker" type="checkbox"><span><strong>Sticker motion</strong><small>Lift while dragging; wobble, pop, and settle on desk changes.</small></span></label>
+              <label class="setting" for="motionParticles"><input id="motionParticles" type="checkbox"><span><strong>Desk particles</strong><small>Allow brief pin, pet, and landing effects; disabled in Eco mode.</small></span></label>
+              <label class="setting" for="drawerStyle">
+                <span><strong>Drawer transition</strong><small>Choose how a drawer panel appears. Instant skips the transition.</small></span>
+                <select id="drawerStyle" data-setting-id="drawer-style">
+                  <option value="slide">Slide</option>
+                  <option value="pop">Pop</option>
+                  <option value="instant">Instant</option>
+                </select>
+              </label>
+              <label class="setting" for="dockMagnification">
+                <input id="dockMagnification" type="checkbox" data-setting-id="dock-magnification">
+                <span><strong>Dock-style tab magnification</strong><small>Gently enlarges drawer tabs near the pointer without moving neighboring tabs.</small></span>
+              </label>
+              <label class="setting" for="rubberBandScrolling">
+                <input id="rubberBandScrolling" type="checkbox" data-setting-id="rubber-band">
+                <span><strong>Rubber-band scrolling</strong><small>Softly pulls a scrollable panel at its top and bottom limits, then springs back.</small></span>
+              </label>
+              <label class="setting" for="cursorTilt">
+                <input id="cursorTilt" type="checkbox" data-setting-id="cursor-tilt">
+                <span><strong>Cursor tilt</strong><small>Tilts the desk toward the pointer by up to 3 degrees. Available only in Soft window style.</small></span>
+              </label>
+              <label class="setting" for="reminderBounce">
+                <input id="reminderBounce" type="checkbox" data-setting-id="reminder-bounce">
+                <span><strong>Buddy reminder bounce</strong><small>Lets the buddy make a brief bounce when a break reminder starts.</small></span>
+              </label>
+              <label class="setting" for="taskbarFlash">
+                <input id="taskbarFlash" type="checkbox" data-setting-id="taskbar-flash">
+                <span><strong>Taskbar attention on reminders</strong><small>Ask Windows to draw attention to the taskbar button for break reminders. Off by default.</small></span>
+              </label>
+              <label class="setting" for="listItemMotion">
+                <input id="listItemMotion" type="checkbox" data-setting-id="list-item-motion">
+                <span><strong>List item motion</strong><small>Fade and slide list entries in and out with an 8 px movement.</small></span>
+              </label>
+              <label class="setting" for="loadingIdleEffects">
+                <input id="loadingIdleEffects" type="checkbox" data-setting-id="loading-idle">
+                <span><strong>Loading shimmer and empty-state idle</strong><small>Use a quiet shimmer while modules load and a gentle idle on empty lists.</small></span>
+              </label>
+              <label class="setting" for="themeCrossfade">
+                <input id="themeCrossfade" type="checkbox" data-setting-id="theme-crossfade">
+                <span><strong>Theme crossfade</strong><small>Use the browser View Transitions API for theme changes when available, with an immediate fallback.</small></span>
+              </label>
+              <h4>Animation Lab</h4>
+              <p class="hint">Replay a small preview using the same spring engine. Previews do not change your desk.</p>
+              <div id="animationLab" class="animation-lab" aria-label="Animation previews">
+                <article class="animation-preview-card" data-preview="spring"><strong>Spring settle</strong><span class="animation-preview-stage"><span class="animation-preview-shape"></span></span><button class="btn alt" type="button" data-replay-animation="spring">Replay</button></article>
+                <article class="animation-preview-card" data-preview="window"><strong>Window open</strong><span class="animation-preview-stage"><span class="animation-preview-shape"></span></span><button class="btn alt" type="button" data-replay-animation="window">Replay</button></article>
+                <article class="animation-preview-card" data-preview="impact"><strong>Buddy impact</strong><span class="animation-preview-stage"><span class="animation-preview-shape"></span></span><button class="btn alt" type="button" data-replay-animation="impact">Replay</button></article>
+                <article class="animation-preview-card" data-preview="sticker"><strong>Sticker drop</strong><span class="animation-preview-stage"><span class="animation-preview-shape"></span></span><button class="btn alt" type="button" data-replay-animation="sticker">Replay</button></article>
+              </div>
+              <p id="animationLabStatus" class="hint" role="status" aria-live="polite">Choose Replay to preview a spring-driven effect.</p>
+              <button class="btn alt" id="resetAnimationLab" type="button">Reset animation defaults</button>
+              <button class="btn alt settings-reset" type="button" data-reset-settings="animations">Reset Animation settings</button>
+            </section>
+            <section class="settings-page" id="settings-page-modules" role="tabpanel" aria-labelledby="settings-tab-modules" data-settings-page="modules" hidden>
+              <h3>Modules</h3>
+              <p class="hint">Modules start off on a new install. Enabling one asks first; you can switch it off whenever you like.</p>
+              <button class="btn" type="button" data-open-panel="modules">Manage modules</button>
+              <button class="btn alt settings-reset" type="button" data-reset-settings="modules">Turn all modules off</button>
+            </section>
+            <section class="settings-page" id="settings-page-behavior" role="tabpanel" aria-labelledby="settings-tab-behavior" data-settings-page="behavior" hidden>
+              <h3>Behavior Lab</h3>
+              <p class="hint">Edit the buddy's personality, rules, sensors, and validated packs.</p>
+              <button class="btn" type="button" data-open-panel="behavior">Open Behavior Lab</button>
+              <button class="btn alt settings-reset" type="button" data-reset-settings="behavior">Reset buddy rules</button>
+            </section>
+            <section class="settings-page" id="settings-page-privacy" role="tabpanel" aria-labelledby="settings-tab-privacy" data-settings-page="privacy" hidden>
+              <h3>Privacy and Permissions</h3>
+              <p class="hint">Modules and buddy sensors are off on a new install. Each asks before it is enabled. Data stays on this device.</p>
+              <button class="btn" type="button" data-open-panel="behavior" data-open-behavior-tab="sensors">Review buddy sensors</button>
+              <button class="btn alt" type="button" data-open-panel="modules">Review module permissions</button>
+              <button class="btn alt settings-reset" type="button" data-reset-settings="privacy">Disable all sensors and modules</button>
+            </section>
+            <section class="settings-page" id="settings-page-hotkeys" role="tabpanel" aria-labelledby="settings-tab-hotkeys" data-settings-page="hotkeys" hidden>
+              <h3>Hotkeys</h3>
+              <p class="hint">Shortcuts available in this version.</p>
+              <ul class="settings-hotkeys">
+                <li><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Space</kbd><span>Show or hide Desk Drawer</span></li>
+                <li><kbd>1</kbd>–<kbd>6</kbd><span>Open enabled tool drawers</span></li>
+                <li><kbd>M</kbd>, <kbd>S</kbd>, <kbd>B</kbd><span>Modules, Settings, Behavior Lab</span></li>
+                <li><kbd>Ctrl</kbd> + <kbd>K</kbd><span>Open the command palette</span></li>
+              </ul>
+              <p class="hint">The global shortcut can be unavailable if another app already uses it; Desk Drawer shows a warning in that case.</p>
+              <button class="btn alt settings-reset" type="button" disabled>No customizable hotkeys to reset</button>
+            </section>
+            <section class="settings-page" id="settings-page-data" role="tabpanel" aria-labelledby="settings-tab-data" data-settings-page="data" hidden>
+              <h3>Data</h3>
+              <p class="hint">Settings, notes, links, and buddy data are stored locally. Desk Drawer does not sync them.</p>
+              <button class="btn alt" type="button" data-open-panel="clip">Open Clipboard history</button>
+              <p class="hint">Data deletion is kept in each tool so a reset cannot remove your saved work by surprise.</p>
+            </section>
+            <section class="settings-page" id="settings-page-advanced" role="tabpanel" aria-labelledby="settings-tab-advanced" data-settings-page="advanced" hidden>
+              <h3>Advanced</h3>
+              <label class="setting" for="developerMode">
+                <input id="developerMode" type="checkbox">
+                <span><strong>Developer mode</strong><small>Show local debugging tools. Nothing here sends data anywhere.</small></span>
+              </label>
+              <details>
+                <summary>Advanced options</summary>
+                <p class="hint">WebView DevTools are available only in development builds, not release builds.</p>
+              </details>
+              <button class="btn alt settings-reset" type="button" disabled>No advanced settings to reset</button>
+            </section>
+            <section class="settings-page" id="settings-page-about" role="tabpanel" aria-labelledby="settings-tab-about" data-settings-page="about" hidden>
+              <h3>About</h3>
+              <p>Desk Drawer 0.1.0</p>
+              <p class="hint">Open source under the MIT License. Pixelify Sans is bundled under the SIL Open Font License.</p>
+              <button class="btn alt settings-reset" type="button" disabled>About information has no settings to reset</button>
+            </section>
+            <section class="settings-page" id="settings-page-developer" role="tabpanel" aria-labelledby="settings-tab-developer" data-settings-page="developer" hidden>
+              <h3>Developer mode</h3>
+              <p class="hint">These tools are local only. Event details are reduced to coarse metadata; clipboard contents and file paths are not recorded.</p>
+              <div class="developer-section">
+                <h4>Theme inspector</h4>
+                <p class="hint">Resolved CSS tokens, WCAG contrast checks, and synchronous theme-apply time. Timing excludes image loading and Windows material effects.</p>
+                <pre id="developerThemeInspector" class="theme-inspector" aria-live="polite"></pre>
+              </div>
+              <div class="developer-section">
+                <h4>Event inspector</h4>
+                <div class="row">
+                  <label for="developerEventFilter">Filter events
+                    <input id="developerEventFilter" type="search" placeholder="Name or coarse metadata">
+                  </label>
+                  <label for="developerEventName">Event type
+                    <select id="developerEventName"><option value="">All events</option></select>
+                  </label>
+                </div>
+                <ul id="developerEvents" class="developer-list" aria-live="polite"></ul>
+                <div class="row">
+                  <button class="btn alt" type="button" data-fire-event="clipboard.copied">Fire test copy event</button>
+                  <button class="btn alt" type="button" data-fire-event="file.renamed">Fire test rename event</button>
+                  <button class="btn alt" id="clearDeveloperEvents" type="button">Clear inspector</button>
+                </div>
+              </div>
+              <div class="developer-section">
+                <h4>Motion diagnostics</h4>
+                <p class="hint">Developer-only timing and spring previews. Slow motion applies to app motion while Developer mode is on.</p>
+                <label class="setting" for="developerSlowMotion">
+                  <span><strong>Slow motion <output id="developerSlowMotionValue">1.0×</output></strong><small>Developer playback speed from 0.1× to 1×.</small></span>
+                  <input id="developerSlowMotion" type="range" min="0.1" max="1" step="0.1" value="1">
+                </label>
+                <label class="inline-setting"><input id="developerMotionOverlayToggle" type="checkbox"> Show frame-time and CPU overlay</label>
+                <p id="developerMotionDiagnostics" class="hint" role="status" aria-live="polite">No active animations.</p>
+                <ul id="developerActiveAnimations" class="developer-list" aria-label="Active animations" aria-live="off"></ul>
+                <canvas id="developerSpringGraph" class="spring-graph" width="640" height="160" role="img" aria-label="Spring preview graph showing displacement and velocity over time"></canvas>
+              </div>
+              <div class="developer-section">
+                <h4>Buddy state and rule debugger</h4>
+                <p id="developerBuddySnapshot" class="hint" role="status" aria-live="polite">Waiting for the Break Buddy module.</p>
+                <div class="row">
+                  <label for="developerForceState">Test buddy state
+                    <select id="developerForceState">
+                      <option value="idle">Idle</option><option value="walking">Walking</option><option value="sitting">Sitting</option><option value="sleeping">Sleeping</option><option value="reacting">Reacting</option><option value="carried">Carried</option><option value="falling">Falling</option><option value="hidden">Hidden</option>
+                    </select>
+                  </label>
+                  <button class="btn alt" id="applyDeveloperState" type="button">Apply test state</button>
+                  <label for="developerClockHour">Test clock hour
+                    <input id="developerClockHour" type="number" min="0" max="23" placeholder="System time">
+                  </label>
+                  <button class="btn alt" id="applyDeveloperClock" type="button">Apply clock override</button>
+                  <button class="btn alt" id="clearDeveloperClock" type="button">Use system time</button>
+                </div>
+                <ul id="developerRuleTraces" class="developer-list" aria-live="polite"></ul>
+              </div>
+              <div class="developer-section">
+                <h4>Packs and features</h4>
+                <p id="developerPackStatus" class="hint" role="status" aria-live="polite">Pack validators are ready. Packs remain data only; scripts are never run.</p>
+                <div class="row">
+                  <button class="btn alt" id="developerValidatePack" type="button">Validate current pack</button>
+                  <button class="btn alt" id="developerReloadPacks" type="button">Reload installed packs</button>
+                </div>
+                <ul id="developerFeatures" class="developer-list"></ul>
+              </div>
+              <div class="developer-section">
+                <h4>Buddy sprite viewer</h4>
+                <p class="hint">Preview every installed sprite frame and animation without changing the active buddy.</p>
+                <div class="row">
+                  <label for="developerSpritePack">Installed buddy
+                    <select id="developerSpritePack"></select>
+                  </label>
+                  <label for="developerSpriteSpeed">Playback speed
+                    <input id="developerSpriteSpeed" type="range" min="0.25" max="2" step="0.25" value="1">
+                  </label>
+                  <label class="inline-setting"><input id="developerSpriteFlip" type="checkbox"> Face left</label>
+                  <label class="inline-setting"><input id="developerSpriteOverlay" type="checkbox" checked> Show anchor and feet line</label>
+                </div>
+                <canvas id="developerSpriteCanvas" width="128" height="128" class="sprite-viewer-canvas" role="img" aria-label="Buddy sprite animation preview"></canvas>
+                <div id="developerSpriteAnimations" class="row" aria-label="Buddy animations"></div>
+                <div id="developerSpriteFrames" class="sprite-viewer-grid" aria-label="Buddy sprite frames"></div>
+                <p id="developerSpriteStatus" class="hint" role="status" aria-live="polite">Enable Developer mode and load an installed buddy pack to inspect it.</p>
+              </div>
+              <div class="developer-section">
+                <h4>Performance snapshot</h4>
+                <p class="hint">Sampling the app process briefly uses a small amount of CPU. This measures Desk Drawer only, not its WebView2 children.</p>
+                <p id="developerPerformance" class="hint" role="status" aria-live="polite">Performance sampling is off.</p>
+                <label class="inline-setting"><input id="developerPerformanceEnabled" type="checkbox"> Show a live performance snapshot</label>
+              </div>
+              <div class="developer-section">
+                <h4>Local diagnostics</h4>
+                <div class="row">
+                  <button class="btn alt" id="refreshDeveloperLog" type="button">Refresh log</button>
+                  <button class="btn alt" id="copyDeveloperDiagnostics" type="button">Copy diagnostics</button>
+                  <button class="btn alt" id="openDeveloperData" type="button">Open data folder</button>
+                </div>
+                <textarea id="developerLog" rows="8" readonly aria-label="Local developer log"></textarea>
+                <label for="resetModuleData">Reset data for one module
+                  <select id="resetModuleData"></select>
+                </label>
+                <button class="btn alt" id="confirmResetModuleData" type="button">Reset selected module data</button>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="p-behavior" role="tabpanel" hidden>
+        <h2>Behavior Lab</h2>
+        <p class="hint">Preview changes safely. Pack rules are data only and cannot run scripts.</p>
+        <div class="behavior-tabs" role="tablist" aria-label="Behavior Lab sections">
+          <button class="btn alt" type="button" role="tab" aria-selected="true" data-behavior-tab="personality">Personality</button>
+          <button class="btn alt" type="button" role="tab" aria-selected="false" data-behavior-tab="rules">Rules</button>
+          <button class="btn alt" type="button" role="tab" aria-selected="false" data-behavior-tab="rule-editor">Rule editor</button>
+          <button class="btn alt" type="button" role="tab" aria-selected="false" data-behavior-tab="sensors">Sensors</button>
+          <button class="btn alt" type="button" role="tab" aria-selected="false" data-behavior-tab="packs">Packs</button>
+        </div>
+        <section class="behavior-section" data-behavior-section="personality">
+          <h3>Personality preview</h3>
+          <p class="hint">These sliders change the buddy for this session and reset when the app restarts.</p>
+          <div class="lab-personality">
+            <label for="labEnergy">Energy <input id="labEnergy" type="range" min="0" max="100" value="60"></label>
+            <label for="labCuriosity">Curiosity <input id="labCuriosity" type="range" min="0" max="100" value="60"></label>
+            <label for="labChattiness">Chattiness <input id="labChattiness" type="range" min="0" max="100" value="40"></label>
+            <label for="labClinginess">Clinginess <input id="labClinginess" type="range" min="0" max="100" value="20"></label>
+            <label for="labSleepiness">Sleepiness <input id="labSleepiness" type="range" min="0" max="100" value="70"></label>
+          </div>
+        </section>
+        <section class="behavior-section" data-behavior-section="rules" hidden>
+          <h3>Buddy rules</h3>
+          <p class="hint">Each rule is summarized in plain language. Switches edit the preview; save to apply it.</p>
+          <div id="behaviorRules"></div>
+          <div class="row">
+            <button class="btn" id="saveBuddyRules" type="button">Save rules to buddy</button>
+            <button class="btn alt" id="undoPackEdit" type="button">Undo</button>
+            <button class="btn alt" id="resetPackEdit" type="button">Reset to defaults</button>
+          </div>
+          <p id="rulesStatus" class="hint" role="status" aria-live="polite"></p>
+        </section>
+        <section class="behavior-section" data-behavior-section="rule-editor" hidden>
+          <h3>Rule editor</h3>
+          <p class="hint">Build a simple rule with a safe action. Test shows a preview and does not run the action.</p>
+          <div class="rule-builder">
+            <label>Rule name <input id="ruleName" type="text" maxlength="120" value="A curious moment"></label>
+            <label>When
+              <select id="ruleEvent">
+                <option value="clipboard.copied">I copy something</option>
+                <option value="file.renamed">I rename files</option>
+                <option value="break.taken">I take a break</option>
+              </select>
+            </label>
+            <label>If
+              <select id="ruleCondition">
+                <option value="">Always</option>
+                <option value="mood.energy">Energy is above</option>
+                <option value="mood.mood">Mood is above</option>
+                <option value="mood.curiosity">Curiosity is above</option>
+                <option value="event.count">Renamed file count is at least</option>
+              </select>
+              <input id="ruleThreshold" type="number" min="0" max="100" value="40" aria-label="Condition threshold">
+            </label>
+            <label>Then
+              <select id="ruleAction">
+                <option value="play">Play animation</option>
+                <option value="toast">Show a toast</option>
+                <option value="adjust">Adjust mood</option>
+              </select>
+              <input id="ruleActionValue" type="text" value="happy" maxlength="120" aria-label="Action value">
+            </label>
+            <label>Test rule
+              <select id="ruleTestTarget" aria-label="Rule to test"></select>
+              <button class="btn alt" id="testRuleNow" type="button">Test this rule now</button>
+            </label>
+            <button class="btn" id="addRule" type="button">Add rule to preview</button>
+          </div>
+          <p id="ruleTestResult" class="hint" role="status" aria-live="polite"></p>
+        </section>
+        <section class="behavior-section" data-behavior-section="sensors" hidden>
+          <h3>Sensors</h3>
+          <p class="hint">Choose which coarse signals the buddy may react to. Raw clipboard contents are never sent to rules.</p>
+          <div id="sensorList"></div>
+          <p id="sensorStatus" class="hint" role="status" aria-live="polite"></p>
+        </section>
+        <section class="behavior-section" data-behavior-section="packs" hidden>
+          <h3>Shareable packs</h3>
+          <p class="hint">Imported packs stay disabled and do not replace the active buddy. Review and confirm before installing.</p>
+          <div class="row">
+            <button class="btn alt" type="button" data-pack-example="sleepy-cat">Load Sleepy Cat</button>
+            <button class="btn alt" type="button" data-pack-example="curious-fox">Load Curious Fox</button>
+            <button class="btn alt" type="button" data-install-buddy-pack="tabby-cat-full">Install full Tabby animations (CC0)</button>
+            <button class="btn alt" type="button" data-install-buddy-pack="midnight-cat-full">Install full Midnight Cat (CC0)</button>
+            <button class="btn alt" type="button" data-install-buddy-pack="snow-cat-full">Install full Snow Cat (CC0)</button>
+            <button class="btn alt" type="button" data-install-buddy-pack="lime-slime">Install Lime Slime (CC0)</button>
+            <button class="btn alt" type="button" data-install-buddy-pack="aqua-slime">Install Aqua Slime (CC0)</button>
+            <button class="btn alt" type="button" data-install-buddy-pack="berry-slime">Install Berry Slime (CC0)</button>
+            <button class="btn alt" id="importPack" type="button">Import .deskpack</button>
+            <button class="btn alt" id="exportPack" type="button">Export .deskpack</button>
+          </div>
+          <button class="btn alt" id="refreshPacks" type="button">Refresh installed packs</button>
+          <p id="installedPacksStatus" class="hint" role="status" aria-live="polite">Loading installed packs…</p>
+          <div id="installedPacks" class="installed-packs"></div>
+          <h3>Pack JSON</h3>
+          <label class="hint" for="packJson">Edit the pack manifest. Validation runs as you type.</label>
+          <textarea id="packJson" rows="18" spellcheck="false" aria-label="Pack manifest JSON"></textarea>
+          <div class="row">
+            <button class="btn alt" id="validatePack" type="button">Validate manifest</button>
+            <button class="btn alt" id="undoPackEditJson" type="button">Undo</button>
+            <button class="btn alt" id="resetPackEditJson" type="button">Reset to defaults</button>
+          </div>
+          <p id="packValidation" class="hint" role="status" aria-live="polite">Load a sample or paste a pack manifest, then validate it.</p>
+          <div class="row" aria-label="Deliberately invalid sample packs">
+            <button class="btn alt" type="button" data-pack-invalid="unknown">Test unknown field error</button>
+            <button class="btn alt" type="button" data-pack-invalid="traversal">Test unsafe sprite path error</button>
+            <button class="btn alt" type="button" data-pack-invalid="action">Test forbidden action error</button>
+          </div>
+        </section>
+      </section>
+
+      <div class="desk" id="desk">
+        <div id="deskStickers" aria-label="Custom desk stickers"></div>
+        <canvas id="deskParticles" aria-hidden="true"></canvas>
+        <div class="buddy" id="buddyWrap">
+          <div class="bubble" id="bubble" hidden></div>
+          <span class="zzz" id="zzz">zzz</span>
+          <canvas id="buddyPrevious" width="64" height="64" aria-hidden="true"></canvas>
+          <canvas id="buddy" width="64" height="64" aria-label="Your desk buddy"></canvas>
+        </div>
+        <span class="hint">Ctrl+Shift+Space toggles the window · Close can keep it in the tray</span>
+      </div>
+    </div>
+    <div class="soft-resize-handle soft-resize-n" data-resize-direction="North" aria-hidden="true"></div>
+    <div class="soft-resize-handle soft-resize-e" data-resize-direction="East" aria-hidden="true"></div>
+    <div class="soft-resize-handle soft-resize-s" data-resize-direction="South" aria-hidden="true"></div>
+    <div class="soft-resize-handle soft-resize-w" data-resize-direction="West" aria-hidden="true"></div>
+    <div class="soft-resize-handle soft-resize-ne" data-resize-direction="NorthEast" aria-hidden="true"></div>
+    <div class="soft-resize-handle soft-resize-se" data-resize-direction="SouthEast" aria-hidden="true"></div>
+    <div class="soft-resize-handle soft-resize-sw" data-resize-direction="SouthWest" aria-hidden="true"></div>
+    <div class="soft-resize-handle soft-resize-nw" data-resize-direction="NorthWest" aria-hidden="true"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <dialog id="closeDialog" aria-labelledby="closeDialogTitle" aria-describedby="closeDialogText">
+      <h2 id="closeDialogTitle">Keep Desk Drawer running?</h2>
+      <p id="closeDialogText">The app can stay in the tray to keep clipboard history and break reminders available.</p>
+      <div class="row">
+        <button class="btn" id="keepInTray" type="button">Keep in tray</button>
+        <button class="btn alt" id="quitApp" type="button">Quit</button>
+      </div>
+    </dialog>
+    <dialog id="packPreviewDialog" aria-labelledby="packPreviewTitle" aria-describedby="packPreviewText">
+      <h2 id="packPreviewTitle">Review pack</h2>
+      <p id="packPreviewText"></p>
+      <div class="row">
+        <button class="btn" id="confirmPackInstall" type="button">Install pack disabled</button>
+        <button class="btn alt" id="cancelPackInstall" type="button">Cancel</button>
+      </div>
+    </dialog>
+    <dialog id="permissionDialog" aria-labelledby="permissionDialogTitle" aria-describedby="permissionDialogText">
+      <h2 id="permissionDialogTitle"></h2>
+      <p id="permissionDialogText"></p>
+      <div class="row">
+        <button class="btn alt" type="submit" value="cancel" form="permissionDialogForm" autofocus>Not now</button>
+        <button class="btn" type="submit" value="allow" form="permissionDialogForm">Enable</button>
+      </div>
+      <form id="permissionDialogForm" method="dialog"></form>
+    </dialog>
+    <dialog id="commandPalette" aria-labelledby="commandPaletteTitle">
+      <h2 id="commandPaletteTitle">Search settings and actions</h2>
+      <label class="settings-search" for="commandSearch">
+        <span>Search</span>
+        <input id="commandSearch" type="search" autocomplete="off" placeholder="Type a setting or action">
+      </label>
+      <div class="settings-search-results" id="commandResults" role="group" aria-label="Settings and actions"></div>
+      <form method="dialog" class="row"><button class="btn alt" type="submit">Close</button></form>
+    </dialog>
+
+    <div id="roamSurface" aria-hidden="true">
+      <canvas id="roamBuddy" width="48" height="48"></canvas>
+      <span id="roamSleep" hidden>zzz</span>
+      <span id="roamStatus" role="status" hidden></span>
+      <div id="roamContextMenu" role="menu" hidden>
+        <button type="button" role="menuitem" data-roam-action="sleep">Sleep</button>
+        <button type="button" role="menuitem" data-roam-action="wake">Wake</button>
+        <button type="button" role="menuitem" data-roam-action="hide">Hide buddy</button>
+        <button type="button" role="menuitem" data-roam-action="open">Open Desk</button>
+        <button type="button" role="menuitem" data-roam-action="quit">Quit Desk Drawer</button>
+      </div>
+    </div>
+
+    <aside id="motionDebugOverlay" class="motion-debug-overlay" aria-live="off" hidden></aside>
+    <script type="module" src="/src/entry.js"></script>
+  </body>
+</html>

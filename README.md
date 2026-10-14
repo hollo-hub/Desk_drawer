@@ -10,6 +10,14 @@ account or cloud service.
 
 > **Desk Drawer 0.1.0** | Windows | Published by hollo-hub
 
+## Development status
+
+Desk Drawer is currently an early prototype, and version 0.1.0 is an initial
+release rather than a finished product. The app and its version number will
+continue to evolve as features are refined, issues are addressed, and new
+releases are made. Users can expect the experience to improve over time, but
+features and behavior may change between versions.
+
 ## What it includes
 
 ### Productivity tools

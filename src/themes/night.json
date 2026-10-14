@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "bg": "#17142e",
+  "wall": "#1f1b3d",
+  "drawer": "#443873",
+  "edge": "#666081",
+  "ink": "#ece8ff",
+  "accent": "#ffb347",
+  "buddy": "#c9b6ff",
+  "desk": "#3a2f63",
+  "inkSecondary": "#a49fc9",
+  "font": "pixel",
+  "borderWidth": 3,
+  "cornerStyle": "hard",
+  "shadowStyle": "hard",
+  "meta": {
+    "id": "night",
+    "name": "Night",
+    "author": "Desk Drawer",
+    "version": "1.0.0",
+    "license": "MIT",
+    "description": "The original amber-lamp night palette."
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "bg": "#1f3a2c",
+  "wall": "#2a4a39",
+  "drawer": "#4a6b4a",
+  "edge": "#86a96b",
+  "ink": "#eaf3dc",
+  "accent": "#f1ddb3",
+  "buddy": "#e8d6a8",
+  "desk": "#5b4632",
+  "font": "readable",
+  "borderWidth": 3,
+  "cornerStyle": "hard",
+  "shadowStyle": "hard",
+  "meta": {
+    "id": "forest",
+    "name": "Forest",
+    "author": "Desk Drawer",
+    "version": "1.0.0",
+    "license": "MIT",
+    "description": "A quiet woodland palette."
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "id": "tidy-downloads",
+  "name": "Tidy Downloads",
+  "icon": "T",
+  "description": "Preview file sorting by type, then undo the moves if needed.",
+  "version": "1.0.0",
+  "defaultEnabled": false,
+  "panelId": "p-tidy"
+}

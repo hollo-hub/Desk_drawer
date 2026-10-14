@@ -1,0 +1,9 @@
+{
+  "id": "focus",
+  "name": "Focus Timer",
+  "icon": "F",
+  "description": "Run a gentle focus timer while your buddy takes a nap.",
+  "version": "1.0.0",
+  "defaultEnabled": false,
+  "panelId": "p-focus"
+}

@@ -1,0 +1,10 @@
+{
+  "id": "color-picker",
+  "name": "Color Picker",
+  "icon": "C",
+  "description": "Pick a color, inspect its values, and copy the hex code.",
+  "version": "1.0.0",
+  "defaultEnabled": false,
+  "panelId": "p-color",
+  "key": "6"
+}

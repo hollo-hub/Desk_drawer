@@ -1,0 +1,10 @@
+{
+  "id": "layouts",
+  "name": "Layouts",
+  "icon": "L",
+  "description": "Arrange open windows with Coding, Writing, and Video call layouts.",
+  "version": "1.0.0",
+  "defaultEnabled": false,
+  "panelId": "p-lay",
+  "key": "3"
+}

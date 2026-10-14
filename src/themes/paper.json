@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "bg": "#dfe5ec",
+  "wall": "#f7f9fb",
+  "drawer": "#ffffff",
+  "edge": "#1c2b4a",
+  "ink": "#1c2b4a",
+  "accent": "#2f55d4",
+  "buddy": "#1c2b4a",
+  "desk": "#eef2f6",
+  "font": "readable",
+  "borderWidth": 3,
+  "cornerStyle": "hard",
+  "shadowStyle": "hard",
+  "meta": {
+    "id": "paper",
+    "name": "Paper",
+    "author": "Desk Drawer",
+    "version": "1.0.0",
+    "license": "MIT",
+    "description": "A crisp paper-like light palette."
+  }
+}

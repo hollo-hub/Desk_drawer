@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "bg": "#1a1033",
+  "wall": "#241447",
+  "drawer": "#2e1a5e",
+  "edge": "#ff3d9a",
+  "ink": "#f4e9ff",
+  "accent": "#19e3ff",
+  "buddy": "#ffe14a",
+  "desk": "#3a1d70",
+  "font": "pixel",
+  "borderWidth": 3,
+  "cornerStyle": "hard",
+  "shadowStyle": "hard",
+  "meta": {
+    "id": "arcade",
+    "name": "Arcade",
+    "author": "Desk Drawer",
+    "version": "1.0.0",
+    "license": "MIT",
+    "description": "A bright neon arcade palette."
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "bg": "#35597a",
+  "wall": "transparent",
+  "drawer": "transparent",
+  "edge": "#ffffff",
+  "ink": "#ffffff",
+  "accent": "#ffd27a",
+  "buddy": "#ffd27a",
+  "desk": "transparent",
+  "font": "pixel",
+  "borderWidth": 3,
+  "cornerStyle": "hard",
+  "shadowStyle": "none",
+  "effects": {
+    "windowEffect": "none",
+    "panelOpacity": 0,
+    "textOutline": true,
+    "scanlines": false
+  },
+  "meta": {
+    "id": "transparent",
+    "name": "Transparent",
+    "author": "Desk Drawer",
+    "version": "1.0.0",
+    "license": "MIT",
+    "description": "Outlined surfaces and legible text for Soft transparent windows."
+  }
+}

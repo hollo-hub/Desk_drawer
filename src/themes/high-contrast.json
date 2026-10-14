@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "bg": "#000000",
+  "wall": "#000000",
+  "drawer": "#000000",
+  "edge": "#ffffff",
+  "ink": "#ffffff",
+  "accent": "#ffee00",
+  "buddy": "#ffee00",
+  "desk": "#000000",
+  "font": "readable",
+  "borderWidth": 3,
+  "cornerStyle": "hard",
+  "shadowStyle": "none",
+  "meta": {
+    "id": "high-contrast",
+    "name": "High contrast",
+    "author": "Desk Drawer",
+    "version": "1.0.0",
+    "license": "MIT",
+    "description": "Pure black, white, and yellow with strong outlines."
+  }
+}

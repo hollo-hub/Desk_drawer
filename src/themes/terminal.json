@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "bg": "#0d0a04",
+  "wall": "#140f05",
+  "drawer": "#1f1608",
+  "edge": "#ffb000",
+  "ink": "#ffb000",
+  "accent": "#ffd24d",
+  "buddy": "#ffb000",
+  "desk": "#1a1206",
+  "font": "mono",
+  "borderWidth": 3,
+  "cornerStyle": "hard",
+  "shadowStyle": "hard",
+  "effects": {
+    "windowEffect": "none",
+    "panelOpacity": 1,
+    "textOutline": false,
+    "scanlines": false
+  },
+  "meta": {
+    "id": "terminal",
+    "name": "Terminal",
+    "author": "Desk Drawer",
+    "version": "1.0.0",
+    "license": "MIT",
+    "description": "An amber mono theme with optional, motion-safe scanlines."
+  }
+}

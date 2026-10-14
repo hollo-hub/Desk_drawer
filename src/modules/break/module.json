@@ -1,0 +1,10 @@
+{
+  "id": "break",
+  "name": "Break Buddy",
+  "icon": "B",
+  "description": "A lively desk buddy, customizable with animated sprite packs.",
+  "version": "1.0.0",
+  "defaultEnabled": false,
+  "panelId": "p-brk",
+  "key": "5"
+}

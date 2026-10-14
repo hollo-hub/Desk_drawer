@@ -1,0 +1,9 @@
+{
+  "id": "scenes",
+  "name": "Scenes",
+  "icon": "S",
+  "description": "Save a window layout together with an optional focus timer.",
+  "version": "1.0.0",
+  "defaultEnabled": false,
+  "panelId": "p-scenes"
+}

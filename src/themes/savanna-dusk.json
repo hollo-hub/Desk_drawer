@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "bg": "#3b2340",
+  "wall": "#5a2f4e",
+  "drawer": "#835328",
+  "edge": "#c25b2f",
+  "ink": "#ffffff",
+  "accent": "#ffd166",
+  "buddy": "#1f1a2b",
+  "desk": "#2a1830",
+  "font": "readable",
+  "borderWidth": 3,
+  "cornerStyle": "hard",
+  "shadowStyle": "hard",
+  "effects": {
+    "textOutline": true,
+    "scanlines": false
+  },
+  "meta": {
+    "id": "savanna-dusk",
+    "name": "Savanna dusk",
+    "author": "Desk Drawer",
+    "version": "1.0.0",
+    "license": "MIT",
+    "description": "Warm sunset colors against a deep dusk desk."
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "bg": "#9db8d6",
+  "wall": "rgba(255,255,255,0.6)",
+  "drawer": "rgba(255,255,255,0.72)",
+  "edge": "rgba(93,93,93,0.95)",
+  "ink": "#1d3248",
+  "accent": "#3a7bd5",
+  "buddy": "#5b4fc4",
+  "desk": "rgba(255,255,255,0.45)",
+  "font": "readable",
+  "borderWidth": 3,
+  "cornerStyle": "soft",
+  "shadowStyle": "hard",
+  "effects": {
+    "windowEffect": "mica",
+    "panelOpacity": 0.72,
+    "textOutline": true,
+    "scanlines": false
+  },
+  "meta": {
+    "id": "frost",
+    "name": "Frost",
+    "author": "Desk Drawer",
+    "version": "1.0.0",
+    "license": "MIT",
+    "description": "A pale frosted palette with a solid-color fallback."
+  }
+}

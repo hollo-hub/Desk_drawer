@@ -7,9 +7,9 @@ Desk Drawer is a Windows desktop utility built with Tauri v2, HTML, CSS, and Jav
 
 Desk Drawer is a small Windows desktop utility built with Tauri v2 and plain
 HTML, CSS, and JavaScript. Its interface is based on the supplied browser
-prototype and includes Clipboard, Layouts, Rename, and Break Buddy drawers,
-plus a Modules page and cozy and night themes. Pixelify Sans is bundled locally
-under its SIL Open Font License so the UI works offline.
+prototype and includes Clipboard, Layouts, Rename, Break Buddy, and utility
+drawers, plus a Modules page and ten validated built-in themes. Pixelify Sans
+is bundled locally under its SIL Open Font License so the UI works offline.
 
 ## Development
 
@@ -59,18 +59,88 @@ with `npm run tauri build`. Tauri outputs are written under
   action sanitizes generated names and rejects collisions before changing any
   files; it never replaces an existing destination.
 - Break Buddy reminds every 20 minutes and runs a 20-second look-away timer.
-  Its code-drawn placeholder art uses a 32×32 sprite-sheet renderer, with
-  named idle, blink, walk, sit, sleep, yawn, perk, happy, curious, eat,
-  carried, and fall animations. Reduced-motion preferences keep the cat still.
+  It supports supplied Tabby and Slime packs, mouse pet/pick-up/drag/drop, and
+  personality-driven wandering. Settings → Buddy switches installed sprites,
+  installs the bundled Slimes, and creates custom buddies from validated PNG
+  sprite sheets. Movement and sprite-frame playback have separate switches;
+  disabling either never hides the buddy.
 - Theme, clipboard history and pause state, and the active layout are saved as
   versioned `settings.json` in the app's local data folder. Preference updates
   use temporary-file replacement and keep the last good file as
   `settings.json.bak`. Existing `desk-drawer.json` preferences are migrated.
   Window geometry is saved by Tauri's window-state plugin; the OS autostart
   registration is managed by Tauri's autostart plugin.
-- Clipboard, Links, Layouts, Rename, and Break Buddy are registry-managed modules.
-  The Modules page controls each drawer; a disabled module is not imported and
-  does not run its handlers or timers. App-wide settings remain available.
+- Settings are grouped into sections and can be searched by setting name or
+  description. `Ctrl+K` opens a command palette for settings and common
+  destinations. Appearance supports a theme font override (pixel, readable, or
+  monospace). General, Appearance, Buddy, and Animations settings apply
+  immediately; applicable sections include a reset-to-default action.
+- Stage 12.1 adds the shared, on-demand motion scheduler and fixed-substep
+  spring solver. The loop has no scheduled frame or timer while idle, pauses
+  while the document is hidden, observes Windows/browser reduced-motion
+  preference, and supports an Eco frame-rate policy with a Settings toggle.
+  Stage 12.3–12.5 add the optional effects and controls; native CPU/RAM and
+  frame-time measurements remain manual and are not claimed as passed.
+- Window style now defaults to Native and can be switched live to Soft in
+  Settings → Appearance. Soft removes the native frame, adds a 24 px transparent
+  margin, and supplies title-bar drag, minimize/maximize/close buttons, and
+  resize handles. Its desk sway, resize settle, entrance, and hide-to-tray
+  effects use the shared spring engine; Native style retains native window
+  decorations and does not run Soft physics.
+- Stage 12.3 adds persisted drawer transitions and optional interface effects
+  in Settings → Animations: Dock-style tab scaling, edge-scroll spring return,
+  Soft-only cursor tilt, reminder bounce and opt-in Windows taskbar attention,
+  list exits, loading/empty states, and theme crossfade when supported. Effects
+  pause or clear when the window is hidden and follow reduced-motion/Eco policy;
+  Glass suppresses decorative motion to avoid extra backdrop repaints.
+- Stage 12.4 adds blended buddy state changes, short anticipation/settle and
+  pickup/drop/pet reactions, sticker lift/drop/removal/unlock feedback, and a
+  shared particle canvas capped at 30 particles. Pinning a clipboard item,
+  petting or dropping the buddy trigger small effects. Desk-pack manifests may
+  validate their supported transitions and bounded motion timings. These
+  effects use the shared motion scheduler and are suppressed with optional
+  motion and over Glass; native visual and resource measurements remain manual.
+- Stage 12.5 adds persisted Calm/Off/Lively intensity, speed and spring tuning,
+  per-effect switches, and an Animation Lab in Settings → Animations. Developer
+  mode adds 0.1× slow motion, a displacement/velocity graph, active-animation
+  list, frame timing, dropped-frame count, and an opt-in local CPU/RAM overlay.
+  Preferences migrate to schema v14. Eco mode has a Settings toggle and
+  lowers optional motion; separate Buddy movement and sprite-animation switches
+  preserve direct mouse interaction and visibility. Automated tests cover clamps, graph
+  sampling, diagnostics, and the buddy state machine; native performance and
+  scaling readings have not been collected.
+- The buddy state machine uses idle, walking, sitting, sleeping, reacting,
+  carried, falling, and hidden states. Developer mode can force each state.
+  Appearance now offers ten built-in themes (Cozy, Night, Transparent, Frost,
+  Paper, Arcade, Forest, Savanna dusk, Terminal, High contrast) plus user themes;
+  Settings → Appearance shows the built-in/user theme count.
+- Developer mode is off by default and adds a hidden-until-enabled Settings
+  area with a filtered event inspector, behavior-rule decision traces, safe
+  test events, buddy snapshots, pack validation/reload, local logs, diagnostics
+  copy, data-folder access, and per-module data reset. Inspector payloads keep
+  only coarse allowlisted fields; clipboard text and file paths are excluded.
+  Nothing in Developer mode sends data over the network. Performance snapshots
+  sample the Desk Drawer process only (not WebView2 child processes) and briefly
+  consume CPU. WebView DevTools are not exposed in release builds.
+- Clipboard, Links, Layouts, Rename, Break Buddy, Color Picker, Keep Awake, Pin
+  Window, Scratch Notes, Focus Timer, Tidy Downloads, and Scenes are
+  registry-managed modules. The Modules page controls each drawer; a disabled
+  module is not imported and does not run its handlers or timers. Fresh
+  installs leave modules and buddy sensors off and ask before enabling them;
+  saved choices from existing installs are preserved during migration.
+  App-wide settings remain available.
+- Color Picker reports hex, RGB, and HSL values and copies hex on request.
+  Keep Awake temporarily holds Windows system/display sleep requests; Pin
+  Window can be toggled and persists across launches. Scratch Notes are saved
+  locally in versioned settings.
+- Focus Timer accepts a custom 1-minute to 7-day duration, shows hours for
+  long sessions, and lets you choose the countdown text color or follow the
+  active theme. These preferences persist locally; the buddy naps while it
+  runs. Scenes support the same custom duration range.
+- Tidy Downloads lists every top-level file and its destination before moving
+  anything. It rejects stale previews and collisions, moves only regular files
+  into type folders, and provides a one-click undo while the original paths
+  remain available. Empty type folders are left in place on undo.
 
 Window arrangement currently targets the first three eligible windows returned
 by Windows and uses the primary display. Renames preserve each original file
@@ -150,21 +220,51 @@ wait a few seconds for the idle blink, then click **Send buddy out** to see it
 cross the desk. Copy a link and rename a file to see its rule reactions. The
 personality sliders are a temporary preview and reset on restart.
 
-## Stage 4 Behavior Lab and pack handling
+## Stage 4 Behavior Lab, packs, and desktop look
 
 Open **Behavior Lab** to preview personality settings, inspect readable rules,
 enable or disable rules, build a simple rule, and test its conditions against a
 safe sample event. Rule tests show action previews and do not execute actions.
-Save rules to apply them to the in-app buddy. The Sensors tab controls the
-coarse clipboard-kind, file-change, break-activity and in-window cursor
-signals; raw clipboard content is never sent to the behavior engine.
+Save rules to apply them to the in-app buddy. The Sensors tab controls coarse
+clipboard-kind, file-change, break-activity and cursor signals; raw clipboard
+content is never sent to the behavior engine. Cursor coordinates are read
+locally only, are not stored or shared, and are used by the roaming buddy only
+when that sensor is enabled.
+
+Choose **Roam desktop** in Settings to place the buddy in a non-focusable,
+click-through overlay. It stays within a monitor's work area, supports
+dragging, and hides while Windows reports a locked desktop, full-screen app,
+or presentation/quiet state. Left-click to pet, double-click to open Desk
+Drawer, and right-click for sleep, wake, hide, open, and quit actions. Reduced
+motion and sleep lower animation updates. Roaming is Windows-only.
+
+The header theme button cycles Cozy, Night, and Glass. Glass requests the
+Windows Mica material and keeps a translucent frosted-color fallback when
+the effect is unavailable; adjust its opacity in Settings. Add a desk
+background from Settings, or drag an image file onto the desk to add a
+movable/resizable sticker. Images are validated and stored locally (PNG, JPEG,
+WebP or GIF; up to 5 MB, 4096 pixels per side and 4 megapixels total; SVG is
+rejected). New installs automatically use the full 57-frame Tabby sprite pack.
+Behavior Lab includes CC0 Tabby/Midnight/Snow and Lime/Aqua/Berry Slime variants.
+The Buddy settings page switches active packs immediately, installs the Slimes,
+and creates custom buddies from validated 32×32-grid PNG sheets with at least
+57 frames in the bundled animation order. Custom buddies use the saved Behavior
+Lab rules, so future rule edits apply without rebuilding the sprite pack. An
+active desk buddy can nap or react but behavior rules cannot hide it; the
+explicit Buddy mode Off setting and operating-system safety hiding for the
+roaming buddy remain available. Break Buddy is still controlled by its saved
+module toggle; enable it on the Modules page to show the in-desk creature.
+Developer mode includes a frame grid and animation viewer with playback speed,
+facing direction, anchor/feet overlay, and frame validation status. Other buddy
+skins still use validated `.deskpack` imports.
 
 The Packs tab loads either included sample manifest, validates JSON as it is
 edited, and offers Undo/Reset plus buttons demonstrating rejection of an
 unknown field, sprite path traversal and script-like rule action. `.deskpack`
 ZIP import shows a validated preview and requires confirmation before
-installation. Installed packs can be listed and deleted, but remain disabled:
-they are not yet activated or applied as buddy skins/rules. Archives reject
+installation. Installed packs start disabled; enable one to apply its
+validated sprite, personality and whitelisted behavior rules to the in-app
+buddy. Disabling the pack restores the default buddy. Archives reject
 unexpected paths, duplicate entries, oversized expansion, and invalid or
 oversized sprite images.
 
@@ -179,10 +279,19 @@ To test archive handling:
 3. In **Packs**, load Sleepy Cat and choose **Export .deskpack**.
    Save the file, then import it. Confirm the manifest preview appears before
    installation; cancel once, import again, and confirm installation. The UI
-   reports that the pack is installed disabled.
-4. Attempt to import a malformed ZIP, one with an unexpected/traversal entry,
-   or one with an invalid or oversized PNG; each must show an error and must
-   not install the pack. Export the same manifest again under a different
+   reports that the pack is installed disabled. Enable the pack and confirm
+   the in-app buddy uses its sprite/personality/rules; disable it and confirm
+   the default buddy returns. Restart while enabled and confirm the pack is
+   restored. Try exporting again to the same path; the existing file must
+   remain unchanged and the export must fail with a clear message.
+4. In **Settings > Buddy**, switch packs and confirm the sprite changes without
+   restarting. Install a Slime and verify that it uses Behavior Lab reactions.
+   Import a 57-frame custom PNG, confirm it becomes active, edit a rule in
+   Behavior Lab, and trigger that rule. Confirm a rule cannot set the buddy to
+   hidden; switching Buddy mode to Off remains an explicit user choice.
+5. Attempt to import a malformed ZIP, one with an unexpected/traversal entry,
+   duplicate entry name, or invalid/oversized PNG; each must show an error and
+   must not install the pack. Export the same manifest again under a different
    name and re-import it to verify the round trip. Refresh the installed list,
    confirm both packs appear as disabled, then delete the test packs and confirm
    they disappear. Packs cannot yet be enabled or applied as buddy skins/rules.

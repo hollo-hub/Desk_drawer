@@ -1,0 +1,47 @@
+[package]
+name = "app"
+version = "0.1.0"
+description = "An offline Windows desktop buddy and utility toolbox"
+authors = ["you"]
+license = "MIT"
+repository = ""
+edition = "2024"
+rust-version = "1.90"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.7.1", features = [] }
+
+[dependencies]
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+log = "0.4"
+tauri = { version = "2.12.1", features = ["tray-icon"] }
+tauri-plugin-log = "2"
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-single-instance = "2"
+tauri-plugin-clipboard-manager = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-autostart = "2"
+tauri-plugin-window-state = "2"
+png = "0.18.1"
+zip = { version = "9.0.0", default-features = false, features = ["deflate"] }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { version = "0.62", features = [
+  "Win32_Foundation",
+  "Win32_System_DataExchange",
+  "Win32_System_Memory",
+  "Win32_System_Ole",
+  "Win32_System_Power",
+  "Win32_System_ProcessStatus",
+  "Win32_System_StationsAndDesktops",
+  "Win32_System_Threading",
+  "Win32_UI_Shell",
+  "Win32_UI_WindowsAndMessaging"
+] }

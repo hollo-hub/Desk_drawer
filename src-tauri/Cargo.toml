@@ -2,9 +2,8 @@
 name = "app"
 version = "0.1.0"
 description = "An offline Windows desktop buddy and utility toolbox"
-authors = ["you"]
-license = "MIT"
-repository = ""
+authors = ["hollo-hub"]
+repository = "https://github.com/hollo-hub/Desk_drawer"
 edition = "2024"
 rust-version = "1.90"
 

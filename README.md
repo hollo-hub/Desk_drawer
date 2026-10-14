@@ -11,6 +11,12 @@ prototype and includes Clipboard, Layouts, Rename, Break Buddy, and utility
 drawers, plus a Modules page and ten validated built-in themes. Pixelify Sans
 is bundled locally under its SIL Open Font License so the UI works offline.
 
+Desk Drawer is proprietary software © 2026 hollo-hub. All rights reserved.
+The source repository is private; downloadable Windows releases are published
+at [Desk_drawer-downloads](https://github.com/hollo-hub/Desk_drawer-downloads).
+Third-party components and assets retain their own licenses and required
+notices.
+
 ## Development
 
 Install Node.js, Rust, Visual Studio C++ Build Tools, and a Windows SDK. Run

@@ -21,9 +21,9 @@
   "meta": {
     "id": "transparent",
     "name": "Transparent",
-    "author": "Desk Drawer",
+    "author": "hollo-hub",
     "version": "1.0.0",
-    "license": "MIT",
+    "license": "All rights reserved",
     "description": "Outlined surfaces and legible text for Soft transparent windows."
   }
 }

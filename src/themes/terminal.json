@@ -21,9 +21,9 @@
   "meta": {
     "id": "terminal",
     "name": "Terminal",
-    "author": "Desk Drawer",
+    "author": "hollo-hub",
     "version": "1.0.0",
-    "license": "MIT",
+    "license": "All rights reserved",
     "description": "An amber mono theme with optional, motion-safe scanlines."
   }
 }

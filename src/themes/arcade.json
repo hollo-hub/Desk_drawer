@@ -15,9 +15,9 @@
   "meta": {
     "id": "arcade",
     "name": "Arcade",
-    "author": "Desk Drawer",
+    "author": "hollo-hub",
     "version": "1.0.0",
-    "license": "MIT",
+    "license": "All rights reserved",
     "description": "A bright neon arcade palette."
   }
 }

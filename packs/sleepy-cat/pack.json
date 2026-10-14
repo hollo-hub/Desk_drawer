@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "id": "sleepy-cat",
+  "name": "Sleepy Cat",
+  "author": "Desk Drawer",
+  "version": "1.0.0",
+  "license": "CC0-1.0",
+  "buddy": {
+    "sprite": "sprites/cat.png",
+    "frame": { "w": 32, "h": 32 },
+    "anchor": { "x": 16, "y": 31 },
+    "animations": {
+      "idle": { "frames": [0, 1], "fps": 2, "loop": true },
+      "walk": { "frames": [2, 3], "fps": 5, "loop": true },
+      "sleep": { "frames": [4, 5], "fps": 1, "loop": true },
+      "perk": { "frames": [6], "fps": 4, "loop": false },
+      "happy": { "frames": [7, 8], "fps": 5, "loop": false },
+      "curious": { "frames": [9], "fps": 3, "loop": false }
+    }
+  },
+  "personality": {
+    "energy": 25,
+    "curiosity": 45,
+    "chattiness": 25,
+    "clinginess": 15,
+    "sleepiness": 85
+  },
+  "lines": {
+    "linkCopied": ["Ooh, a link.", "I will inspect it after this nap."]
+  },
+  "rules": [
+    {
+      "id": "curious-link",
+      "name": "Notices a link",
+      "enabled": true,
+      "when": "clipboard.copied",
+      "if": [{ "var": "event.kind", "op": "==", "value": "link" }],
+      "then": [{ "play": "perk" }, { "say": "linkCopied" }],
+      "cooldownSec": 30,
+      "priority": 1,
+      "weight": 1
+    }
+  ]
+}

@@ -48,6 +48,10 @@ body::before {
   pointer-events: none;
 }
 
+:root[data-theme='transparent'] body[data-app-view='v2-home']::before {
+  background: none;
+}
+
 .wrap {
   position: relative;
   display: flex;

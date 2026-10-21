@@ -27,7 +27,21 @@ mod windows_platform;
 
 const CLIPBOARD_LIMIT: usize = 50;
 const CLIPBOARD_EXPIRY_MS: u64 = 24 * 60 * 60 * 1000;
-const PREFERENCES_SCHEMA_VERSION: u32 = 14;
+const PREFERENCES_SCHEMA_VERSION: u32 = 15;
+const HOME_FAVORITE_IDS: [&str; 12] = [
+    "scenes",
+    "focus",
+    "clipboard",
+    "links",
+    "notes",
+    "tidy",
+    "rename",
+    "layouts",
+    "picker",
+    "awake",
+    "pin",
+    "buddy",
+];
 const MODULE_IDS: [&str; 12] = [
     "clipboard",
     "links",
@@ -105,6 +119,7 @@ struct FocusTimerSettings {
     schema_version: u32,
     duration_minutes: u32,
     text_color: Option<String>,
+    break_reminder: bool,
 }
 
 impl Default for FocusTimerSettings {
@@ -113,6 +128,7 @@ impl Default for FocusTimerSettings {
             schema_version: 1,
             duration_minutes: 25,
             text_color: None,
+            break_reminder: true,
         }
     }
 }
@@ -175,6 +191,9 @@ struct Preferences {
     saved_scenes: Vec<SavedScene>,
     focus_timer_settings: FocusTimerSettings,
     window_pinned: bool,
+    halo_color: Option<String>,
+    home_favorites: Vec<String>,
+    home_onboarded: bool,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
@@ -455,7 +474,7 @@ impl Default for Preferences {
             schema_version: PREFERENCES_SCHEMA_VERSION,
             clipboard_history: Vec::new(),
             clipboard_paused: false,
-            theme: "cozy".to_string(),
+            theme: "night".to_string(),
             theme_preferences: ThemePreferences::default(),
             glass_opacity: default_glass_opacity(),
             desk_background: None,
@@ -479,8 +498,18 @@ impl Default for Preferences {
             saved_scenes: Vec::new(),
             focus_timer_settings: FocusTimerSettings::default(),
             window_pinned: false,
+            halo_color: None,
+            home_favorites: default_home_favorites(),
+            home_onboarded: false,
         }
     }
+}
+
+fn default_home_favorites() -> Vec<String> {
+    ["scenes", "focus", "clipboard", "links", "notes"]
+        .into_iter()
+        .map(str::to_string)
+        .collect()
 }
 
 fn default_buddy_sensors() -> HashMap<String, bool> {
@@ -1930,6 +1959,26 @@ fn matches_hex_color(text: &str) -> bool {
     matches!(digits.len(), 3 | 6) && digits.bytes().all(|byte| byte.is_ascii_hexdigit())
 }
 
+fn validate_home_settings(favorites: &[String], halo_color: Option<&str>) -> Result<(), String> {
+    if favorites.len() > 6 {
+        return Err("Choose no more than six favorite tools.".to_string());
+    }
+    let mut seen = HashSet::new();
+    for favorite in favorites {
+        if !HOME_FAVORITE_IDS.contains(&favorite.as_str()) || !seen.insert(favorite.as_str()) {
+            return Err("Favorite tools must be unique supported tool ids.".to_string());
+        }
+    }
+    if halo_color.is_some_and(|color| {
+        color.len() != 7
+            || !color.starts_with('#')
+            || !color[1..].bytes().all(|byte| byte.is_ascii_hexdigit())
+    }) {
+        return Err("Halo color must be a six-digit hex color.".to_string());
+    }
+    Ok(())
+}
+
 fn migrate_preferences(mut value: serde_json::Value) -> Result<(Preferences, bool), String> {
     let mut version = match value.get("schemaVersion") {
         None => 0,
@@ -2055,6 +2104,21 @@ fn migrate_preferences(mut value: serde_json::Value) -> Result<(Preferences, boo
                 }
                 version = 14;
             }
+            14 => {
+                let object = value
+                    .as_object_mut()
+                    .ok_or_else(|| "Preferences must be a JSON object.".to_string())?;
+                object
+                    .entry("halo_color")
+                    .or_insert(serde_json::Value::Null);
+                object
+                    .entry("home_favorites")
+                    .or_insert_with(|| serde_json::json!(default_home_favorites()));
+                object
+                    .entry("home_onboarded")
+                    .or_insert(serde_json::Value::Bool(false));
+                version = 15;
+            }
             unsupported => {
                 return Err(format!(
                     "No preferences migration exists for version {unsupported}."
@@ -2083,6 +2147,10 @@ fn migrate_preferences(mut value: serde_json::Value) -> Result<(Preferences, boo
     validate_interface_motion(&preferences.interface_motion)?;
     validate_animation_settings(&preferences.animation_settings)?;
     validate_focus_timer_settings(&preferences.focus_timer_settings)?;
+    validate_home_settings(
+        &preferences.home_favorites,
+        preferences.halo_color.as_deref(),
+    )?;
     if preferences
         .desk_background
         .as_deref()
@@ -2364,6 +2432,22 @@ fn app_preferences(state: State<'_, AppState>) -> Result<Preferences, String> {
         }
     }
     Ok(preferences.clone())
+}
+
+#[tauri::command]
+fn set_home_settings(
+    state: State<'_, AppState>,
+    halo_color: Option<String>,
+    favorites: Vec<String>,
+    onboarded: bool,
+) -> Result<(), String> {
+    validate_home_settings(&favorites, halo_color.as_deref())?;
+    mutate_preferences(&state, |preferences| {
+        preferences.halo_color = halo_color;
+        preferences.home_favorites = favorites;
+        preferences.home_onboarded = onboarded;
+        Ok(())
+    })
 }
 
 #[tauri::command]
@@ -2875,6 +2959,23 @@ fn clear_clipboard_history(app: AppHandle, state: State<'_, AppState>) -> Result
     })?;
     notify_history_changed(&app, history);
     Ok(())
+}
+
+#[tauri::command]
+fn clear_unpinned_clipboard_history(
+    app: AppHandle,
+    state: State<'_, AppState>,
+) -> Result<usize, String> {
+    let (removed, history) = mutate_preferences(&state, |preferences| {
+        let original_len = preferences.clipboard_history.len();
+        preferences.clipboard_history.retain(|item| item.pinned);
+        Ok((
+            original_len - preferences.clipboard_history.len(),
+            preferences.clipboard_history.clone(),
+        ))
+    })?;
+    notify_history_changed(&app, history);
+    Ok(removed)
 }
 
 #[tauri::command]
@@ -3853,16 +3954,17 @@ mod tests {
         Preferences, SavedLink, THEME_ASSET_LIMIT_BYTES, ThemeBundleAsset, ThemePreferences,
         build_custom_buddy_pack, build_pack_archive, build_theme_bundle, classify_clipboard_text,
         close_request_behavior, custom_buddy_id, default_buddy_sensors, default_glass_opacity,
-        export_desk_pack, image_dimensions, insert_clip, inspect_pack_archive,
-        inspect_theme_bundle_archive, installed_pack_assets, is_reserved_windows_name,
-        is_safe_http_url, is_safe_pack_id, is_safe_sprite_path, is_valid_theme_id,
-        migrate_preferences, module_enabled, perform_tidy_downloads, perform_undo_tidy_downloads,
-        prune_expired_history, read_installed_pack_manifests, register_pack_archive_entry,
-        remove_installed_pack, rename_files, sanitize_file_stem, save_preferences,
-        saved_theme_effect, tidy_plan, validate_animation_settings, validate_buddy_rules,
-        validate_desk_stickers, validate_focus_timer_settings, validate_link,
-        validate_link_for_open, validate_links, validate_pack_png, validate_theme_bundle_assets,
-        validate_theme_preferences, validate_window_style, version_is_older, window_state_flags,
+        default_home_favorites, export_desk_pack, image_dimensions, insert_clip,
+        inspect_pack_archive, inspect_theme_bundle_archive, installed_pack_assets,
+        is_reserved_windows_name, is_safe_http_url, is_safe_pack_id, is_safe_sprite_path,
+        is_valid_theme_id, migrate_preferences, module_enabled, perform_tidy_downloads,
+        perform_undo_tidy_downloads, prune_expired_history, read_installed_pack_manifests,
+        register_pack_archive_entry, remove_installed_pack, rename_files, sanitize_file_stem,
+        save_preferences, saved_theme_effect, tidy_plan, validate_animation_settings,
+        validate_buddy_rules, validate_desk_stickers, validate_focus_timer_settings,
+        validate_home_settings, validate_link, validate_link_for_open, validate_links,
+        validate_pack_png, validate_theme_bundle_assets, validate_theme_preferences,
+        validate_window_style, version_is_older, window_state_flags,
     };
     use std::{
         fs,
@@ -3917,6 +4019,51 @@ mod tests {
         assert_eq!(custom_buddy_id("  My New Buddy "), Ok(id));
         assert!(build_custom_buddy_pack("Only One Frame", &test_sprite_png(32, 32)).is_err());
         assert!(custom_buddy_id("   ").is_err());
+    }
+
+    #[test]
+    fn fresh_preferences_default_to_night_without_overwriting_saved_theme() {
+        assert_eq!(Preferences::default().theme, "night");
+
+        let (saved, _) = migrate_preferences(serde_json::json!({
+            "theme": "cozy"
+        }))
+        .expect("existing theme preference should migrate");
+        assert_eq!(saved.theme, "cozy");
+    }
+
+    #[test]
+    fn schema_fourteen_preferences_get_home_settings_defaults() {
+        let (preferences, migrated) = migrate_preferences(serde_json::json!({
+            "schemaVersion": 14,
+            "theme": "night"
+        }))
+        .expect("schema fourteen preferences should migrate");
+
+        assert!(migrated);
+        assert_eq!(preferences.schema_version, 15);
+        assert_eq!(preferences.halo_color, None);
+        assert_eq!(preferences.home_favorites, default_home_favorites());
+        assert!(!preferences.home_onboarded);
+    }
+
+    #[test]
+    fn home_settings_validate_favorites_and_halo_color() {
+        assert!(
+            validate_home_settings(
+                &["scenes".to_string(), "focus".to_string()],
+                Some("#abcdef"),
+            )
+            .is_ok()
+        );
+        assert!(validate_home_settings(&[], None).is_ok());
+        assert!(validate_home_settings(&vec!["scenes".to_string(); 7], None,).is_err());
+        assert!(validate_home_settings(&["unknown".to_string()], None,).is_err());
+        assert!(
+            validate_home_settings(&["scenes".to_string(), "scenes".to_string()], None,).is_err()
+        );
+        assert!(validate_home_settings(&[], Some("#abc")).is_err());
+        assert!(validate_home_settings(&[], Some("#gggggg")).is_err());
     }
 
     #[test]
@@ -4130,9 +4277,11 @@ mod tests {
     fn focus_timer_settings_validate_duration_and_color() {
         let settings = FocusTimerSettings::default();
         assert!(validate_focus_timer_settings(&settings).is_ok());
+        assert!(settings.break_reminder);
         let mut custom = FocusTimerSettings {
             duration_minutes: 10_080,
             text_color: Some("#12aBcF".to_string()),
+            break_reminder: false,
             ..settings.clone()
         };
         assert!(validate_focus_timer_settings(&custom).is_ok());
@@ -4141,6 +4290,13 @@ mod tests {
         custom.duration_minutes = 25;
         custom.text_color = Some("red; background:url(x)".to_string());
         assert!(validate_focus_timer_settings(&custom).is_err());
+        let legacy = serde_json::from_value::<FocusTimerSettings>(serde_json::json!({
+            "schemaVersion": 1,
+            "durationMinutes": 25,
+            "textColor": null
+        }))
+        .expect("legacy focus timer settings should keep the default reminder");
+        assert!(legacy.break_reminder);
         assert!(
             serde_json::from_value::<FocusTimerSettings>(serde_json::json!({
                 "schemaVersion": 1,
@@ -5499,6 +5655,7 @@ pub fn run() {
     )
     .plugin(tauri_plugin_clipboard_manager::init())
     .plugin(tauri_plugin_dialog::init())
+    .plugin(tauri_plugin_notification::init())
     .invoke_handler(tauri::generate_handler![
       set_close_to_tray,
       set_window_style,
@@ -5546,6 +5703,7 @@ pub fn run() {
       resolve_close_request,
       hotkey_status,
       app_preferences,
+      set_home_settings,
       save_links,
       open_saved_link,
       inspect_desk_pack,
@@ -5561,6 +5719,7 @@ pub fn run() {
       set_clipboard_pinned,
       prune_clipboard_history,
       clear_clipboard_history,
+      clear_unpinned_clipboard_history,
       set_clipboard_paused,
       read_clipboard_for_user,
       set_theme,

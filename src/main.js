@@ -42,6 +42,7 @@ import { filterInspectorEvents, summarizeInspectorPayload } from './core/develop
 import { checkThemeContrast, fixThemeTextContrast } from './core/theme-contrast.js';
 import { applyThemeTokens, resolveThemeTokens } from './core/theme-tokens.js';
 import { DEFAULT_THEME_PREFERENCES, migrateThemePreferences, resolveScheduledTheme } from './core/theme-preferences.js';
+import { themePaletteEntries } from './home-v2/theme-adapter.js';
 import { loadBuiltinThemes } from './themes/index.js';
 import { parseThemeColor, parseThemeFile, serializeThemeFile, validateTheme } from './core/theme.js';
 import { getCurrentWindow, UserAttentionType } from '@tauri-apps/api/window';
@@ -64,6 +65,11 @@ const $ = (selector) => document.querySelector(selector);
 const root = document.documentElement;
 root.dataset.documentVisible = String(document.visibilityState !== 'hidden');
 const eventBus = createEventBus();
+for (const name of ['focus.started', 'focus.finished', 'break.requested', 'tool.used']) {
+  document.addEventListener(`desk-drawer:${name}`, (event) => {
+    eventBus.emit(name, event.detail ?? {});
+  });
+}
 const motionEngine = createMotionEngine({ documentRef: document });
 const mainWindow = getCurrentWindow();
 const builtinThemes = loadBuiltinThemes();
@@ -73,7 +79,7 @@ let themePreferences = { ...DEFAULT_THEME_PREFERENCES, opacityOverrides: {}, cus
 let savedThemePreferences = structuredClone(themePreferences);
 let currentThemeObject = builtinThemes[0];
 let resolvedThemeTokens = {};
-let activeThemeId = 'cozy';
+let activeThemeId = 'night';
 let toastTimer;
 let animationsEnabled = true;
 let animationSettings = normalizeAnimationSettings();
@@ -638,7 +644,9 @@ function applyTheme(theme, { preview = false, forceSolid = false } = {}) {
     $('#themeAccentEditor').value = colorInputValue(accent);
   }
   updateThemeContrastStatus(presentation);
-  document.dispatchEvent(new Event('desk-drawer-theme-changed'));
+  document.dispatchEvent(new CustomEvent('desk-drawer-theme-changed', {
+    detail: { themeId: selectedThemeId },
+  }));
   lastThemeApplyDurationMs = performance.now() - applyStartedAt;
   renderThemeInspector(presentation, overrides);
   if (root.dataset.themeFallback === 'native' && selectedThemeId === 'transparent') {
@@ -2236,6 +2244,10 @@ const COMMAND_ACTIONS = [
   { id: 'action-open-clipboard', name: 'Open Clipboard', description: 'Browse saved clipboard history.', target: 'panel:clip' },
 ];
 
+function commandPaletteActions() {
+  return [...COMMAND_ACTIONS, ...themePaletteEntries(allThemes())];
+}
+
 function settingsEntries() {
   return [
     ...SETTINGS_CATALOG,
@@ -2290,6 +2302,10 @@ $('#settingsNav').addEventListener('keydown', (event) => {
 });
 
 function showSettingsEntry(entry) {
+  if (entry.target?.startsWith('theme:')) {
+    void setTheme(entry.target.slice('theme:'.length));
+    return;
+  }
   if (entry.target?.startsWith('panel:')) {
     const panel = entry.target.slice('panel:'.length);
     openDrawer(panel);
@@ -2337,10 +2353,11 @@ function showSettingsEntry(entry) {
 
 function renderSearchResults(query, container, { includeActions = false } = {}) {
   container.replaceChildren();
-  const entries = includeActions ? [...settingsEntries(), ...COMMAND_ACTIONS] : settingsEntries();
+  const actions = includeActions ? commandPaletteActions() : [];
+  const entries = includeActions ? [...settingsEntries(), ...actions] : settingsEntries();
   const matches = query.trim()
     ? searchSettings(entries, query)
-    : includeActions ? COMMAND_ACTIONS : [];
+    : actions;
   for (const entry of matches.slice(0, 12)) {
     const button = document.createElement('button');
     button.className = 'settings-search-result';
@@ -2419,14 +2436,14 @@ async function resetSettingsSection(section) {
   } else if (section === 'appearance') {
     await changeWindowStyle('native');
     $('#windowStyle').value = 'native';
-    await invoke('set_theme', { theme: 'cozy', effect: 'none' });
+    await invoke('set_theme', { theme: 'night', effect: 'none' });
     themePreferences = migrateThemePreferences({
       ...DEFAULT_THEME_PREFERENCES,
       customThemes: userThemes.map((theme) => serializeThemeFile(theme)),
     });
     await persistThemePreferences();
     renderThemePreferenceControls();
-    applyTheme('cozy');
+    applyTheme('night');
   } else if (section === 'buddy') {
     await invoke('set_buddy_mode', { mode: 'desk' });
     buddyMode = 'desk';
@@ -3979,7 +3996,7 @@ async function initialize() {
   }
 }
 
-applyTheme('cozy');
+applyTheme('night');
 initialize().catch((error) => {
   $('#bootStatus').textContent = `Startup could not finish: ${describeStartupError(error)}. Open a module toggle to retry it.`;
   $('#bootStatus').setAttribute('aria-busy', 'false');

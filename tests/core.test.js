@@ -68,6 +68,7 @@ test('event bus dispatches namespaced events and unsubscribes listeners', () => 
 
 test('focus timer supports custom durations up to seven days and formats hours', () => {
   assert.equal(DEFAULT_FOCUS_TIMER_SETTINGS.durationMinutes, 25);
+  assert.equal(DEFAULT_FOCUS_TIMER_SETTINGS.breakReminder, true);
   assert.equal(isValidFocusDuration(1), true);
   assert.equal(isValidFocusDuration(MAX_FOCUS_DURATION_MINUTES), true);
   assert.equal(isValidFocusDuration(0), false);

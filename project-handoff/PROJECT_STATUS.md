@@ -6,11 +6,74 @@ master prompt at `C:\Users\pc\Desktop\gh\Desk Drawer v2 Master Prompt for the Co
 ## Current baseline
 
 - Repository: `C:\Users\pc\Desktop\gh\desk-drawer`
-- Branch: `main`; baseline commit `9437df1` (`Add Behavior Lab editor and preferences`).
+- Branch: `v2-cat-home-m0-m1`, branched from `main` at `9437df1` (`Add Behavior Lab editor and preferences`).
 - Worktree changes are uncommitted. The handoff file
   `project-handoff/WHAT_REMAINS.md` is intentionally local-only.
 - Preserve existing work; continue from this foundation. Do not commit or push
   without the user's request.
+
+## V2 milestone progress
+
+- Follow the [integration prompt](../../new/DESK_DRAWER_V2_BUILD_PROMPT.md):
+  keep existing feature modules and Rust logic, with the new canvas as the
+  default home. Launch language is English; Scenes keep app launching.
+- M0/M1 adds the supplied cat compositor, ten-theme sprite palette, backdrop,
+  isometric stage, responsive integer sprite scale, cursor look, blink/tail/ear
+  behavior, idle sleep, hop interactions, and reduced-motion handling in
+  `src/home-v2/`. The classic tools remain accessible from the home view.
+- M2 connects the home to the existing theme persistence and Ctrl+K palette.
+  Theme actions use the existing `setTheme()`/Rust `set_theme` path; the home
+  updates from the existing theme-change event, including legacy theme ID
+  aliases and custom-theme fallback. Fresh installs default to Night while
+  existing saved themes are preserved. The existing Native/Soft window-effect
+  behavior remains authoritative for Transparent.
+- M3 wires the halo, springing orbit tiles, hover labels, click behavior,
+  custom cursor effects, and keyboard-accessible tool buttons into the active
+  `home-v2/boot.js` path. The Buddy panel now controls the theme-default or
+  custom halo color. Halo color, favorites, and onboarding state use the
+  existing atomic native preferences store; schema v15 migrates older
+  preferences without replacing saved values. Browser interaction checks
+  passed for orbit toggling, keyboard access, and color reset. Visual review
+  shows the three front-layer tiles while the two rear-layer tiles are
+  occluded behind the cat, consistent with the specified draw order. A visible
+  tile reaches the existing module flow; disabled modules show the existing
+  enable-from-Modules guidance. Automated frontend/Rust checks and builds
+  pass. Native persistence and interaction acceptance remain outstanding;
+  the owner accepted the browser gate and deferred native checks while
+  proceeding to M4.
+- M4 makes Focus a first-class V2 panel independent of the optional legacy
+  Focus module. It persists duration and the break-reminder choice through the
+  existing focus timer settings command, adds a deadline-based session from
+  1 minute to 7 days, and drives the halo fraction and focus cat mood. A
+  completed session emits the existing focus/break events, requests a native
+  notification through Tauri's notification plugin, and sequences the cat's
+  yawn, hop, and happy state. Browser smoke checks verified keyboard launch,
+  the live one-minute countdown, and manual stop; unit tests cover one-minute
+  completion and the seven-day maximum. A native Windows dev run completed a
+  real one-minute session and showed the completion status. The installed
+  Windows build also completed a one-minute session with Break reminder
+  enabled; the Focus panel showed "Focus session complete. Nice work." and
+  returned to the stopped state. The Windows toast was not observed, so its
+  delivery remains unconfirmed. The saved 108-minute duration was restored,
+  and the installed app was stopped without removing its data. Stop at the M4
+  gate for review.
+- `npm test` passes 60 tests, including cat layout, motion, interaction, and
+  built-in theme-palette coverage; `npm run build` passes. Browser preview
+  verified all ten built-in theme events, legacy aliases, custom fallback, and
+  removal of the home backdrop in Transparent mode. Native Tauri dev verified
+  Ctrl+K selection and persistence (`frost` → `night` → restored `frost`), and
+  Windows reported the app responsive.
+- M5 adds first-class V2 panels for Scenes, Clipboard, Links, and Notes, with
+  the panel registry routing direct to these tools and module opt-in checks
+  preserving the existing enable-from-Modules flow. Browser smoke checks confirm
+  the panels open in enabled states, disabled-module states show the inline
+  guidance, and the text/status copy stays user-friendly. The milestone is only
+  partial: the Welcome panel now has a three-step onboarding flow with built-in
+  theme and favorites selection, and the Settings command routes to the
+  existing classic Settings drawer. The other utility modules remain available
+  through the existing classic drawer routes, but Tidy, Rename, Layouts, Picker,
+  Keep Awake, Buddy, and Settings still need section-8 alignment and full
+  verification before M5 can be accepted.
 
 ## Foundation and implemented stages
 
@@ -188,6 +251,11 @@ master prompt at `C:\Users\pc\Desktop\gh\Desk Drawer v2 Master Prompt for the Co
 
 ## Verification on the current worktree
 
+- Current V2 verification: 55 frontend tests, 54 Rust tests, Rust formatting,
+  and the production frontend build pass. Native M2 testing exercised Ctrl+K
+  theme selection and confirmed the original saved theme was restored.
+- Transparent rendering was verified in the browser preview; native Soft-mode
+  desktop compositing was not visually measured.
 - `npm test`: 17 passed, including name/description search and opt-in module
   defaults.
 - B2 `npm test`: 19 passed, including coarse event filtering, event-bus

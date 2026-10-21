@@ -3,10 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#bfe3ee" />
+    <meta name="theme-color" content="#05050f" />
     <title>Desk Drawer</title>
   </head>
-  <body>
+  <body data-app-view="v2-home">
+    <main id="v2Home" class="v2-home" aria-labelledby="v2HomeTitle">
+      <canvas id="v2Stage" aria-hidden="true"></canvas>
+      <h1 id="v2HomeTitle" class="v2-sr-only">Desk Drawer cat home</h1>
+      <div class="v2-home-actions">
+        <p id="v2HomeHint">Click the cat to summon your tools. Press Ctrl+K for everything else.</p>
+        <button id="v2OpenClassic" type="button">Open classic tools</button>
+      </div>
+      <p id="v2HomeStatus" class="v2-sr-only" role="status" aria-live="polite"></p>
+      <nav id="a11y-tools" class="v2-sr-only" aria-label="Tools">
+        <button id="v2ToggleTools" type="button" aria-expanded="false">Show tools</button>
+        <div id="v2ToolButtons"></div>
+      </nav>
+      <div id="panels"></div>
+    </main>
+    <button id="v2ReturnHome" class="v2-return-home" type="button" hidden>Return to cat home</button>
+
     <div class="wrap">
       <header id="appHeader">
         <div>

@@ -31,7 +31,7 @@ See [docs/02-design-and-layout.md](./docs/02-design-and-layout.md) and
 
 Get the Windows installer from the
 [Desk Drawer Downloads releases](https://github.com/hollo-hub/Desk_drawer-downloads/releases/latest).
-The installer is named `Desk Drawer Study_2.0.0_x64-setup.exe`.
+The installer is named `Desk.Drawer.Study_2.0.0_x64-setup.exe`.
 
 This is a separate app from the main Desk Drawer utility workspace. It uses its
 own app identifier and keeps its local study data separate.

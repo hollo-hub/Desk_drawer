@@ -49,6 +49,14 @@ Personalize the workspace with ten built-in themes, custom themes, background
 images, stickers, and appearance settings. Eco and reduced-motion options
 provide additional control over visual effects.
 
+### Desk Drawer Study (separate app)
+
+The private source repository also contains [`study-workspace/`](./study-workspace/),
+a separate local-first study dashboard. It has its own product name, data
+identifier, source, tests, and Windows release workflow; it does not replace or
+share the main app's settings or data. See its
+[2.0.0 release notes and setup](./study-workspace/README.md).
+
 ## Download
 
 Windows installers are published in the

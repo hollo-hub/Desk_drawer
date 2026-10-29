@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#cfd9f2" />
+    <title>Desk Drawer Study</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Desk Drawer Study home">
+          <span class="brand-mark" aria-hidden="true">dd</span>
+          <span>
+            <strong>Desk Drawer Study</strong>
+            <small>Study companion</small>
+          </span>
+        </a>
+        <nav class="page-nav" aria-label="Workspace pages">
+          <button class="page-nav-button" type="button" data-page-target="desk" aria-current="page">Desk</button>
+          <button class="page-nav-button" type="button" data-page-target="resources">Resources</button>
+          <button class="page-nav-button" type="button" data-page-target="notes">Notes</button>
+          <button class="page-nav-button" type="button" data-page-target="tasks">Tasks</button>
+          <button class="page-nav-button" type="button" data-page-target="stats">Stats</button>
+          <button class="page-nav-button" type="button" data-page-target="history">History</button>
+        </nav>
+        <div class="topbar-tools">
+          <button id="open-settings" class="settings-gear-button" type="button" aria-label="Settings" aria-expanded="false" title="Settings">
+            <svg class="settings-gear" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.25a3.75 3.75 0 1 0 0 7.5 3.75 3.75 0 0 0 0-7.5Zm8.1 4.88 1.38 1.07-1.5 2.6-1.67-.57a7.93 7.93 0 0 1-1.38.8l-.3 1.75h-3l-.3-1.75a7.93 7.93 0 0 1-1.38-.8l-1.67.57-1.5-2.6 1.38-1.07a7.73 7.73 0 0 1 0-1.6l-1.38-1.07 1.5-2.6 1.67.57a7.93 7.93 0 0 1 1.38-.8l.3-1.75h3l.3 1.75a7.93 7.93 0 0 1 1.38.8l1.67-.57 1.5 2.6-1.38 1.07a7.73 7.73 0 0 1 0 1.6Z"/></svg>
+          </button>
+        </div>
+        <p id="save-status" class="save-status" role="status" aria-live="polite"></p>
+      </header>
+
+      <main id="desk-page" class="workspace app-page">
+        <section class="stage" aria-labelledby="course-title" data-cat-state="idle">
+          <p id="cat-bubble" class="cat-bubble" role="status" aria-live="polite" hidden>Your courses, all tucked in one place.</p>
+          <div class="cat-stage" data-dashboard-component="character" aria-hidden="true">
+            <svg id="timer-halo" class="focus-halo" viewBox="0 0 220 220" hidden>
+              <circle id="timer-halo-progress" cx="110" cy="110" r="96"></circle>
+            </svg>
+            <span class="buddy-shadow" aria-hidden="true"></span>
+            <div id="buddy-art" class="cat" aria-hidden="true"></div>
+            <span class="stage-spark spark-one" aria-hidden="true"></span>
+            <span class="stage-spark spark-two" aria-hidden="true"></span>
+          </div>
+          <p class="stage-caption">A little space to focus.</p>
+          <p id="timer-display" class="timer-display" role="timer" aria-label="Elapsed time 00:00" aria-live="off">00:00</p>
+          <h1 id="course-title">Loading your courses…</h1>
+          <p id="stage-hint" class="stage-hint">Choose a course below, or edit one to set up its folder and links.</p>
+          <button id="next-task-preview" class="next-task-preview" data-dashboard-component="next-task" type="button" hidden></button>
+          <button id="empty-add-course" class="start-button empty-state-button" type="button" hidden>Create your first course</button>
+          <div id="timer-lengths" class="timer-lengths" role="group" aria-label="Focus length">
+            <button id="stopwatch-mode" class="length-chip" type="button" data-timer-mode="stopwatch" aria-label="Stopwatch" aria-pressed="true" title="Start at 0:00 and count up">Stopwatch</button>
+            <button class="length-chip" type="button" data-length-sec="1500" aria-pressed="false">25 min</button>
+            <button class="length-chip" type="button" data-length-sec="3000" aria-pressed="false">50 min</button>
+            <div class="custom-timer">
+              <label for="custom-minutes">Custom timer</label>
+              <div class="custom-timer-entry">
+                <input id="custom-minutes" type="number" min="1" max="180" step="1" inputmode="numeric" placeholder="30" aria-label="Custom timer minutes" />
+                <span>min</span>
+                <button id="apply-custom-length" class="custom-timer-apply" type="button" aria-label="Use custom timer">Use time</button>
+              </div>
+            </div>
+          </div>
+          <div class="timer-actions">
+            <button id="start-session" class="start-button" type="button" disabled>Start session</button>
+            <button id="pause-session" class="session-secondary-button" type="button" hidden>Pause</button>
+            <button id="end-session" class="session-secondary-button" type="button" hidden>End</button>
+          </div>
+        </section>
+
+        <section class="course-dock" data-dashboard-component="course-dock" aria-label="Your courses">
+          <div id="course-list" class="course-list" role="group" aria-label="Courses"></div>
+          <div class="dock-actions">
+            <button id="add-course" class="dock-icon-button" type="button" aria-label="Add course" title="Add course">+</button>
+            <button id="edit-course" class="dock-edit-button" type="button">Edit</button>
+          </div>
+        </section>
+      </main>
+
+      <main id="resources-page" class="content-page app-page" aria-labelledby="resources-heading" hidden>
+        <section class="page-panel resources-panel">
+          <div class="page-panel-heading">
+            <div>
+              <p class="page-eyebrow">Your study kit</p>
+              <h1 id="resources-heading">Resources</h1>
+            </div>
+            <label class="page-course-picker">
+              <span>Course</span>
+              <select id="resources-course-select" aria-label="Course resources" disabled></select>
+            </label>
+          </div>
+          <p id="resources-empty-state" class="page-empty-state" hidden>Add a course to organize its folders, links, and files.</p>
+          <button id="resources-add-course" class="start-button empty-state-button" type="button" hidden>Add your first course</button>
+          <div id="resource-library" class="resource-library">
+            <form id="resource-group-form" class="resource-group-form">
+              <label class="visually-hidden" for="new-resource-group">New resource group</label>
+              <input id="new-resource-group" type="text" maxlength="60" required placeholder="Create a group, e.g. Lectures" />
+              <button class="start-button task-add-button" type="submit">Add group</button>
+            </form>
+            <ul id="resource-group-list" class="resource-group-list" aria-label="Resource groups"></ul>
+            <div class="resource-add-actions">
+              <button id="resource-add-folder" class="resource-browse-button" type="button">Add folder…</button>
+              <button id="resource-add-files" class="resource-browse-button" type="button">Add files…</button>
+            </div>
+            <form id="resource-link-form" class="resource-link-form">
+              <label class="visually-hidden" for="resource-link-title">Link name</label>
+              <input id="resource-link-title" type="text" maxlength="160" autocomplete="off" placeholder="Link name (optional)" />
+              <label class="visually-hidden" for="resource-link-url">Web link</label>
+              <input id="resource-link-url" type="url" maxlength="4096" required autocomplete="url" placeholder="https://…" />
+              <button class="start-button task-add-button" type="submit">Add link</button>
+            </form>
+            <p id="resource-list-empty" class="task-list-empty" hidden>No resources yet. Add a folder, file, or link.</p>
+            <ul id="resource-list" class="resource-list" aria-label="Course resources"></ul>
+            <p class="page-save-hint">Resources open from their existing locations. Desk Drawer Study never copies or moves them.</p>
+          </div>
+        </section>
+      </main>
+
+      <main id="notes-page" class="content-page app-page" aria-labelledby="notes-heading" hidden>
+        <section class="page-panel notes-panel">
+          <div class="page-panel-heading">
+            <div>
+              <p class="page-eyebrow">Course space</p>
+              <h1 id="notes-heading">Notes</h1>
+            </div>
+            <label class="page-course-picker">
+              <span>Course</span>
+              <select id="notes-course-select" aria-label="Course for notes" disabled></select>
+            </label>
+          </div>
+          <p id="notes-empty-state" class="page-empty-state" hidden>Add a course to start collecting your study notes.</p>
+          <button id="notes-add-course" class="start-button empty-state-button" type="button" hidden>Add your first course</button>
+          <section id="notes-workspace" class="notes-workspace" hidden aria-label="Course notebook">
+            <aside class="notes-sidebar" aria-label="Notes list">
+              <div class="notes-sidebar-tools">
+                <label class="visually-hidden" for="note-search">Search notes</label>
+                <input id="note-search" type="search" placeholder="Search notes…" autocomplete="off" />
+                <button id="note-create" class="start-button task-add-button" type="button">New note</button>
+              </div>
+              <p id="note-list-empty" class="note-list-empty" hidden>No notes yet. Create one to get started.</p>
+              <ul id="note-list" class="note-list" aria-label="Notes"></ul>
+            </aside>
+            <div id="note-editor" class="note-editor" hidden>
+              <div class="note-editor-heading">
+                <label class="visually-hidden" for="note-title">Note title</label>
+                <input id="note-title" type="text" maxlength="120" placeholder="Untitled note" autocomplete="off" />
+                <button id="note-delete" class="note-delete-button" type="button">Delete note</button>
+              </div>
+              <div class="note-toolbar" role="toolbar" aria-label="Markdown formatting">
+                <button type="button" data-note-format="heading" title="Heading" aria-label="Heading">H</button>
+                <button type="button" data-note-format="bold" title="Bold" aria-label="Bold">B</button>
+                <button type="button" data-note-format="italic" title="Italic" aria-label="Italic"><em>I</em></button>
+                <button type="button" data-note-format="bullet" title="Bullet list" aria-label="Bullet list">• List</button>
+                <button type="button" data-note-format="checklist" title="Checklist" aria-label="Checklist">☐ Task</button>
+                <button type="button" data-note-format="quote" title="Quote" aria-label="Quote">❞ Quote</button>
+                <button type="button" data-note-format="code" title="Code" aria-label="Code">` Code</button>
+                <button type="button" data-note-format="link" title="Link" aria-label="Link">Link</button>
+              </div>
+              <label class="visually-hidden" for="note-content">Note content</label>
+              <textarea id="note-content" class="notes-editor" maxlength="50000" placeholder="Write a note… Use the toolbar for Markdown formatting." spellcheck="true"></textarea>
+              <div class="note-editor-footer">
+                <span id="note-character-count">0 characters</span>
+                <span id="notes-save-hint" role="status" aria-live="polite"></span>
+              </div>
+            </div>
+            <div id="note-no-selection" class="note-no-selection" hidden>
+              <p>Select a note or create a new one.</p>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <main id="tasks-page" class="content-page app-page" aria-labelledby="tasks-heading" hidden>
+        <section class="page-panel tasks-panel">
+          <div class="page-panel-heading">
+            <div>
+              <p class="page-eyebrow">Small steps add up</p>
+              <h1 id="tasks-heading">Tasks</h1>
+            </div>
+            <label class="page-course-picker">
+              <span>Course</span>
+              <select id="tasks-course-select" aria-label="Course for tasks" disabled></select>
+            </label>
+          </div>
+          <p id="tasks-empty-state" class="page-empty-state" hidden>Add a course to start a focused task list.</p>
+          <button id="tasks-add-course" class="start-button empty-state-button" type="button" hidden>Add your first course</button>
+          <form id="task-form" class="task-form" hidden>
+            <label class="visually-hidden" for="new-task-title">New task</label>
+            <input id="new-task-title" type="text" maxlength="160" required autocomplete="off" placeholder="What’s the next small step?" />
+            <button class="start-button task-add-button" type="submit">Add task</button>
+          </form>
+          <p id="task-list-empty" class="task-list-empty" hidden>No tasks yet. Add one small next step.</p>
+          <ul id="task-list" class="task-list" aria-label="Course tasks"></ul>
+        </section>
+      </main>
+
+      <main id="history-page" class="content-page app-page" aria-labelledby="history-heading" hidden>
+        <section class="page-panel history-panel">
+          <div class="page-panel-heading">
+            <div>
+              <p class="page-eyebrow">Your study log</p>
+              <h1 id="history-heading">History</h1>
+            </div>
+          </div>
+          <p id="history-empty-state" class="page-empty-state" hidden>Your finished sessions and reflections will appear here.</p>
+          <ol id="history-list" class="history-list" aria-label="Study sessions"></ol>
+        </section>
+      </main>
+
+      <main id="stats-page" class="content-page app-page" aria-labelledby="stats-heading" hidden>
+        <section class="page-panel stats-panel">
+          <div class="page-panel-heading">
+            <div><p class="page-eyebrow">A little progress adds up</p><h1 id="stats-heading">Study stats</h1></div>
+          </div>
+          <div class="stats-summary" aria-label="Study totals">
+            <article><strong id="stats-total-sessions">0</strong><span>sessions logged</span></article>
+            <article><strong id="stats-longest-streak">0 days</strong><span>longest study streak</span></article>
+          </div>
+          <div class="stats-columns">
+            <section><h2>This week</h2><ul id="stats-this-week" class="stats-bars"></ul></section>
+            <section><h2>Last week</h2><ul id="stats-last-week" class="stats-bars"></ul></section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="course-sheet" class="course-sheet" aria-labelledby="sheet-title">
+      <div class="sheet-header">
+        <div>
+          <p class="sheet-eyebrow">Your study desk</p>
+          <h2 id="sheet-title">Edit course</h2>
+        </div>
+        <button id="close-sheet" class="close-button" type="button">Close</button>
+      </div>
+
+      <form id="course-form" class="course-form" novalidate>
+        <label class="field">
+          <span>Name</span>
+          <input id="course-name" name="name" type="text" maxlength="60" required autocomplete="off" placeholder="e.g. Algorithms" />
+        </label>
+        <label class="field">
+          <span>Download match keywords <small>Comma-separated filename phrases</small></span>
+          <input id="course-filing-keywords" type="text" maxlength="1000" autocomplete="off" placeholder="e.g. biology, lecture 4" />
+        </label>
+
+        <fieldset class="field color-field">
+          <legend>Desk color</legend>
+          <div id="color-options" class="color-options"></div>
+        </fieldset>
+
+        <label class="field">
+          <span>Folder</span>
+          <input id="course-folder" name="folder" type="text" maxlength="4096" autocomplete="off" placeholder="Paste a folder path (optional)" />
+          <button id="browse-course-folder" class="resource-browse-button" type="button">Choose or create folder…</button>
+        </label>
+
+        <label class="field">
+          <span>Links <small>One per line; use a URL or title | URL</small></span>
+          <textarea id="course-links" name="links" rows="4" spellcheck="false" placeholder="https://example.com&#10;Course portal | https://example.com/course"></textarea>
+        </label>
+
+        <fieldset class="field resource-field">
+          <legend>Files &amp; apps</legend>
+          <p class="resource-help">Add documents, apps, images, or videos. Desk Drawer Study opens them where they are; it never copies or moves your files.</p>
+          <button id="browse-course-files" class="resource-browse-button" type="button">Browse files…</button>
+          <ul id="course-file-list" class="course-file-list" aria-label="Selected files and apps"></ul>
+        </fieldset>
+
+        <p id="form-message" class="form-message" role="status" aria-live="polite"></p>
+        <button id="delete-course" class="delete-button" type="button">Delete course</button>
+        <p id="delete-hint" class="delete-hint"></p>
+      </form>
+    </dialog>
+
+    <aside id="download-filing-card" class="download-filing-card" aria-live="polite" hidden>
+      <div>
+        <p class="page-eyebrow">New download</p>
+        <strong id="download-filing-title"></strong>
+        <label class="download-course-picker"><span>Move to</span><select id="download-filing-course"></select></label>
+      </div>
+      <div class="download-filing-actions">
+        <button id="download-filing-dismiss" class="session-secondary-button" type="button">Dismiss</button>
+        <button id="download-filing-move" class="start-button" type="button">Move</button>
+      </div>
+    </aside>
+    <aside id="download-undo-card" class="download-undo-card" aria-live="polite" hidden>
+      <span id="download-undo-message"></span>
+      <button id="download-undo-action" type="button">Undo</button>
+    </aside>
+
+    <dialog id="session-summary-dialog" class="session-summary-dialog" aria-labelledby="session-summary-heading">
+      <form id="session-summary-form" class="session-summary-form">
+        <p class="page-eyebrow">Session complete</p>
+        <h2 id="session-summary-heading">What did you work on?</h2>
+        <label for="session-summary-input">Optional reflection</label>
+        <input id="session-summary-input" type="text" maxlength="240" placeholder="e.g. Finished the practice problems" autocomplete="off" />
+        <div class="session-summary-actions">
+          <button id="skip-session-summary" class="session-secondary-button" type="button">Skip</button>
+          <button class="start-button task-add-button" type="submit">Save summary</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div id="guide-scrim" class="guide-scrim" aria-hidden="true" hidden></div>
+    <aside id="guide-card" class="guide-card" role="dialog" aria-labelledby="guide-heading" aria-describedby="guide-copy" hidden>
+      <div class="guide-progress" id="guide-progress" aria-label="Guide steps"></div>
+      <p class="page-eyebrow" id="guide-step-label">Welcome</p>
+      <h2 id="guide-heading"></h2>
+      <p id="guide-copy"></p>
+      <div class="guide-actions">
+        <button id="guide-skip" class="session-secondary-button" type="button">Skip tour</button>
+        <button id="guide-next" class="start-button" type="button">Next</button>
+      </div>
+    </aside>
+
+    <dialog id="settings-dialog" class="settings-dialog" aria-labelledby="settings-heading">
+      <div class="settings-card">
+        <div class="settings-heading">
+          <div><p class="page-eyebrow">Make this space yours</p><h2 id="settings-heading">Settings</h2></div>
+          <button id="close-settings" class="close-button" type="button">Close</button>
+        </div>
+        <label class="settings-choice"><span>Appearance</span><select id="theme-setting"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
+        <label class="settings-choice"><span>Session-end notifications</span><input id="notifications-setting" type="checkbox" /></label>
+        <label class="settings-choice"><span>Interface sounds</span><input id="sound-effects-setting" type="checkbox" /></label>
+        <label class="settings-choice"><span>Suggest filing new Downloads</span><input id="download-filing-setting" type="checkbox" /></label>
+        <fieldset class="settings-components"><legend>Show on Desk</legend>
+          <label><input type="checkbox" data-component-setting="character" /> Pixel character</label>
+          <label><input type="checkbox" data-component-setting="course-dock" /> Course dock</label>
+          <label><input type="checkbox" data-component-setting="next-task" /> Next task shortcut</label>
+        </fieldset>
+      </div>
+    </dialog>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

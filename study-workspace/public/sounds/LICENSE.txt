@@ -1,0 +1,4 @@
+Interface sounds (click.ogg and confirmation.ogg) by Kenney
+Source: https://kenney.nl/assets/interface-sounds
+License: CC0 1.0 Universal, https://creativecommons.org/publicdomain/zero/1.0/
+The source pack states attribution is optional; credit is provided here.

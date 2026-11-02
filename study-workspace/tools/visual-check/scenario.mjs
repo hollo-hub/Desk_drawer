@@ -6,8 +6,12 @@ const DATA={schemaVersion:3,courses:[
  {id:'c2',name:'Linear Algebra',color:'#5fb3a8',folder:'',additionalFolders:[],links:[],apps:[],resourceGroups:[],resourceAssignments:[],filingKeywords:[],notes:'',createdAt:iso(FIXED-18*day)},
  {id:'c3',name:'Technical Writing',color:'#e2b25c',folder:'',additionalFolders:[],links:[],apps:[],resourceGroups:[],resourceAssignments:[],filingKeywords:[],notes:'',createdAt:iso(FIXED-15*day)}],
  sessions:[...Array(9)].map((_,i)=>({id:'s'+i,courseId:['c1','c2','c3'][i%3],startedAt:iso(FIXED-i*day*0.8),plannedSec:1500,actualSec:1500-i*40,completed:true,countUp:false,summary:i==0?'Finished trees ch.4':null})),
- tasks:[{id:'t1',courseId:'c1',title:'Implement AVL rotations',createdAt:iso(FIXED),completed:false},{id:'t2',courseId:'c2',title:'Problem set 5',createdAt:iso(FIXED),completed:false}],
+ tasks:[{id:'t1',courseId:'c1',title:'Implement AVL rotations',createdAt:iso(FIXED),completed:false,dueAt:iso(FIXED+day)},{id:'t2',courseId:'c2',title:'Problem set 5',createdAt:iso(FIXED),completed:false}],
  notes:[{id:'n1',courseId:'c1',title:'Tree traversals',content:'# Traversals\n\n- inorder\n- preorder\n- postorder\n\nBalanced trees keep height O(log n).',createdAt:iso(FIXED),updatedAt:iso(FIXED)}],
+ study:{courses:{
+  c1:{examDate:'2026-11-05',weeklyGoalMinutes:180,sources:[{id:'source-1',title:'Tree lecture',kind:'link',target:'https://example.edu/trees',createdAt:iso(FIXED),chapters:[{id:'chapter-1',title:'Balanced trees',createdAt:iso(FIXED),recallHistory:[]},{id:'chapter-2',title:'Tree rotations',target:'https://example.edu/rotations',createdAt:iso(FIXED),recallHistory:[{at:iso(FIXED-day),rating:'yellow'}]}]}],reviewItems:[{id:'review-1',courseId:'c1',sourceId:'source-1',unitId:'chapter-1',chapterId:'chapter-1',prompt:'Why do balanced trees matter?',box:1,dueAt:iso(FIXED-day),createdAt:iso(FIXED-day),history:[]}]},
+  c2:{sources:[{id:'source-2',title:'Linear algebra notes',kind:'link',target:'https://example.edu/linear-algebra',createdAt:iso(FIXED),chapters:[{id:'chapter-3',title:'Eigenvectors',createdAt:iso(FIXED),recallHistory:[]}]}],reviewItems:[{id:'review-2',courseId:'c2',sourceId:'source-2',unitId:'chapter-3',chapterId:'chapter-3',prompt:'Define an eigenvector.',box:1,dueAt:iso(FIXED-day),createdAt:iso(FIXED-day),history:[]}]}
+ }},
  settings:{defaultLengthSec:1500,theme:'light',tourDone:true,notifications:false,soundEffects:false,downloadFilingEnabled:false,dashboardComponents:['character','course-dock','next-task']}};
 const DIST=process.argv[2],OUT=process.argv[3];fs.mkdirSync(OUT,{recursive:true});
 const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.png':'image/png'};
@@ -46,13 +50,38 @@ async function run(name,{theme='light',skin,steps}){
   const calls2=await p.evaluate(()=>window.__CALLS);
   log.push({name,errs,calls:calls2});await p.close();
 }
-const pages=['resources','notes','tasks','stats','history'];
+const pages=['study','resources','notes','tasks','stats','history'];
 for(const skin of ['classic','arc']){
   await run(`light-${skin}`,{skin,steps:[{shot:'desk'},...pages.map(pg=>({page:pg,shot:pg})),{page:'desk'},{js:'document.querySelector("#open-settings").click()',shot:'settings'},{js:'document.querySelector("#close-settings").click();document.querySelector("#edit-course").click()',shot:'coursesheet'}]});
 }
 await run('dark-arc',{theme:'dark',skin:'arc',steps:[{shot:'desk'},{page:'notes',shot:'notes'},{page:'history',shot:'history'}]});
 await run('session',{skin:'classic',steps:[{js:'document.querySelector("[data-length-sec=\\"1500\\"]").click()'},{js:'document.querySelector("#start-session").click()',wait:900,shot:'running'},{js:'document.querySelector("#pause-session").click()',shot:'paused'},{js:'document.querySelector("#pause-session").click()'},{js:'document.querySelector("#end-session").click()',wait:600,shot:'ended'}]});
 await run('notes-flow',{skin:'classic',steps:[{page:'notes'},{js:'document.querySelector("#note-create").click()',wait:300},{js:'(()=>{const t=document.querySelector("#note-title");t.value="Test note";t.dispatchEvent(new Event("input",{bubbles:true}));const c=document.querySelector("#note-content");c.value="hello **world**";c.dispatchEvent(new Event("input",{bubbles:true}))})()',shot:'edited'},{page:'tasks'},{js:'(()=>{const i=document.querySelector("#new-task-title");i.value="A new task";document.querySelector("#task-form").requestSubmit()})()',shot:'taskadded'}]});
+for(const theme of ['light','dark']){
+  for(const skin of ['classic','arc','mono','paper']){
+    await run(`study-${theme}-${skin}`,{theme,skin,steps:[{page:'study',shot:'hub'}]});
+  }
+}
+await run('study-recall',{skin:'arc',steps:[
+  {page:'study',shot:'hub'},
+  {js:'document.querySelector("[data-study-action=\\"source-open\\"]").click()',wait:400},
+  {js:'document.querySelector("#study-interleave-review").click();if(!document.querySelector("#recall-read-location").textContent.includes("Linear algebra notes"))throw new Error("Interleaving should choose a different recently studied course")',shot:'interleaved-review'},
+  {js:'document.querySelector("#close-recall").click()'},
+  {js:'document.querySelector("[data-review-id]").click()',shot:'question-read'},
+  {js:'document.querySelector("[data-review-id]").click()',shot:'question-read'},
+  {js:'document.querySelector("#recall-begin").click()',shot:'question-writing'},
+  {js:'(()=>{const p=document.querySelector("#recall-writing-prompt");if(p.hidden||!p.textContent.includes("eigenvector"))throw new Error("The authored question should stay visible during recall");document.querySelector("#recall-answer").value="A vector scaled by a linear transformation";document.querySelector("#recall-reveal").click()})()',shot:'question-revealed'},
+  {js:'document.querySelector("[data-recall-rating=\\"yellow\\"]").click()',wait:400,shot:'question-rated'},
+  {js:'document.querySelector("[data-study-action=\\"chapter-recall\\"]").click()',shot:'read'},
+  {js:'document.querySelector("#recall-begin").click();document.querySelector("#recall-answer").value="Recall notes"',shot:'writing'},
+  {js:'document.querySelector("#recall-reveal").click()',shot:'revealed'},
+  {js:'document.querySelector("[data-recall-rating=\\"yellow\\"]").click()',wait:400,shot:'rated'},
+  {js:'document.dispatchEvent(new KeyboardEvent("keydown",{key:"k",ctrlKey:true,bubbles:true}))',shot:'keyboard-commands'},
+  {js:'document.querySelector("#command-palette").close()'},
+  {js:'document.querySelector("#open-command-palette").click()',shot:'commands'},
+  {js:'document.querySelector("[data-command=\\"task\\"]").click()',shot:'task-command'},
+  {js:'(()=>{document.querySelector("[data-page-target=\\"study\\"]").click();const title=document.querySelector("#study-source-title");title.value="Practice notes";document.querySelector("#study-source-target").value="https://example.edu/practice";document.querySelector("#study-source-form").requestSubmit()})()',shot:'source-added'}
+]});
 fs.writeFileSync(path.join(OUT,'log.json'),JSON.stringify(log,null,1));
 console.log(JSON.stringify(log.map(l=>({n:l.name,errs:l.errs.length,calls:l.calls.length}))));
 await b.close();srv.close();clearTimeout(hard);process.exit(0);

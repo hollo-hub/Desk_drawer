@@ -13,6 +13,7 @@ import { chooseCourseFiles, chooseCourseFolder, closeCourseSheet, deleteSelected
 import { dismissDownloadCandidate, moveSelectedDownload, undoSelectedDownload, updateDownloadFilingSetting } from "./app/downloads.js";
 import { findCourse, loadCourses, selectWorkspaceCourse, setActivePage } from "./app/workspace.js";
 import { scheduleSave } from "./app/persistence.js";
+import { initializeStudyHub } from "./app/study-hub.js";
 
 colorSchemePreference.addEventListener("change", () => {
   if (appState.appData?.settings.theme === "system") applyAppearance();
@@ -240,4 +241,5 @@ for (const input of form.querySelectorAll("input, textarea")) {
   });
 }
 
+initializeStudyHub();
 void loadCourses();

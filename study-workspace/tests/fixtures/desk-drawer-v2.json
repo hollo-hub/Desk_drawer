@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "courses": [
+    {
+      "id": "course-biochem",
+      "name": "Biochemistry",
+      "color": "#e58a9b",
+      "folder": "C:\\Users\\Student\\Documents\\Biochemistry",
+      "additionalFolders": ["C:\\Users\\Student\\Documents\\Biochemistry\\Labs"],
+      "links": [{ "title": "Lecture portal", "url": "https://example.edu/lectures" }],
+      "apps": ["C:\\Users\\Student\\Documents\\Biochemistry\\lecture-1.pdf"],
+      "resourceGroups": [{ "id": "group-lectures", "name": "Lectures" }],
+      "resourceAssignments": [
+        {
+          "kind": "link",
+          "target": "https://example.edu/lectures",
+          "groupId": "group-lectures"
+        }
+      ],
+      "filingKeywords": ["biochem", "lab"],
+      "notes": "Legacy course note, kept during migration.",
+      "createdAt": "2025-08-20T14:00:00.000Z"
+    }
+  ],
+  "sessions": [
+    {
+      "id": "session-1",
+      "courseId": "course-biochem",
+      "startedAt": "2025-08-22T09:00:00.000Z",
+      "plannedSec": 1500,
+      "actualSec": 1475,
+      "completed": true,
+      "countUp": false,
+      "summary": "Reviewed enzyme kinetics"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task-with-date",
+      "courseId": "course-biochem",
+      "title": "Finish lab report",
+      "createdAt": "2025-08-21T11:00:00.000Z",
+      "completed": false,
+      "dueAt": "2025-08-24T23:59:59.999Z"
+    },
+    {
+      "id": "task-without-date",
+      "courseId": "course-biochem",
+      "title": "Review lecture slides",
+      "createdAt": "2025-08-21T12:00:00.000Z",
+      "completed": true
+    }
+  ],
+  "notes": [
+    {
+      "id": "note-1",
+      "courseId": "course-biochem",
+      "title": "Kinetics",
+      "content": "Vmax and Km notes.",
+      "createdAt": "2025-08-21T13:00:00.000Z",
+      "updatedAt": "2025-08-21T13:30:00.000Z"
+    }
+  ],
+  "settings": {
+    "defaultLengthSec": 1500,
+    "theme": "dark",
+    "tourDone": true,
+    "notifications": true,
+    "soundEffects": false,
+    "downloadFilingEnabled": false,
+    "dashboardComponents": ["character", "course-dock", "next-task"]
+  }
+}

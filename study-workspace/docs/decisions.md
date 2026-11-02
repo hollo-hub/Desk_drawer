@@ -29,6 +29,16 @@ The supplied project is a GitHub archive, not a clone: it has no `.git` director
 - The palette opens with Ctrl/Cmd+K, provides a small set of direct, keyboard-accessible actions, and never starts a session or opens a source without an explicit user action.
 - Respect keyboard focus, readable contrast, and reduced-motion preferences. Do not add a tutorial, accounts/sync, AI-generated questions, telemetry, icon redesign, statistics redesign, history search, or course-drawer theming.
 
+## Course hub implementation
+
+- Migrate older optional `study` values losslessly by keeping unrecognized root fields intact; persist the first additive study-data migration immediately through the existing backup-before-replacement save path.
+- Save source records in each course's study record. Removal requires confirmation and also removes that source's chapters, recall history, and linked review questions. Chapter removal likewise confirms before deleting its review questions.
+- Store the study-surface skin choice in `dd-study-skin`. Read the existing visual-check `{ "skin": "..." }` value in `dd-skin` as a compatibility fallback; the V2 appearance setting continues to control light/dark mode.
+- Never save a learner's freeform recall answer. Save only its timestamp/rating and, when explicitly entered, the learner-authored optional review question.
+- Start the recall timer when the source is hidden. Aim for about 15 minutes without imposing a timer lockout; learners may reveal and rate when they are ready.
+- Keep review questions visible course by course and schedule every question with the existing Leitner model; do not generate prompts.
+- Offer an explicit interleaved review action across courses with due questions. Reuse the existing next-course ordering, then open a selected saved question; never switch courses or start recall without the user's action.
+
 ## Acceptance evidence
 
 Use the checked-in V2 screenshots and saved V2 data fixture as the comparison baseline. Extend the visual scenarios to cover the four skins and light/dark modes, and compare legacy pages as well as the new V3 surfaces. Record the exact test/build/screenshot results at release time; do not treat a successful V2-only build as V3 completion.

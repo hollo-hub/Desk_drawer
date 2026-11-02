@@ -24,6 +24,7 @@ export const appState = {
   sessionFinishing: false,
   activePage: "desk",
   taskReminderTimer: null,
+  activeRecall: null,
   selectedNoteId: null,
   notesWorkspaceCourseId: null,
   latestSessionId: null,

@@ -17,3 +17,8 @@ On Windows, install a Chromium-compatible browser and set `CHROME_EXECUTABLE_PAT
 `diff.mjs` reports differing screenshots and whether the backend calls (`invoke`) were identical.
 A 192x16 pixel strip around the ghost sprite can differ between identical runs because its hem
 animates; anything else that differs is a real change.
+
+The scenario also checks the V3 course hub, the recall/reveal/rating flow, the keyboard command
+palette, and screenshots each V3 skin in both light and dark themes. These extra surfaces are
+additive; compare the Desk, Resources, Notes, Tasks, Stats, and History screenshots against the
+saved V2 baseline rather than treating the new Study page as part of that baseline.

@@ -4,6 +4,8 @@ import { invoke } from "@tauri-apps/api/core";
 import { normalizeTimerLength } from "../timer-model.js";
 import { prepareAppNotes } from "../note-model.js";
 import { prepareCourseResources } from "../resource-model.js";
+import { prepareStudyData } from "../study/study-data-model.js";
+import { renderStudyHub } from "./study-hub.js";
 import { appPages, catBubble, courseList, courseTitle, emptyAddCourseButton, guideCard, noteContentInput, noteCreateButton, noteDeleteButton, noteSearchInput, noteTitleInput, notesAddCourseButton, notesCourseSelect, notesEmptyState, notesWorkspace, pageNavButtons, reducedMotionPreference, resourceGroupForm, resourceLibrary, resourceLinkForm, resourcesAddCourseButton, resourcesCourseSelect, resourcesEmptyState, stageHint, taskForm, tasksAddCourseButton, tasksCourseSelect, tasksEmptyState, timerActions, timerDisplay, timerLengths } from "./dom.js";
 import { applyAppearance } from "./settings.js";
 import { explainSessionLock, updateLengthSelection, updateTimerControls } from "./session.js";
@@ -23,6 +25,14 @@ export async function loadCourses() {
 
   try {
     appState.appData = await invoke("load_data");
+    const needsStudyDataMigration =
+      !appState.appData.study ||
+      typeof appState.appData.study !== "object" ||
+      Array.isArray(appState.appData.study) ||
+      (appState.appData.study.courses != null &&
+        (typeof appState.appData.study.courses !== "object" || Array.isArray(appState.appData.study.courses)));
+    prepareStudyData(appState.appData);
+    if (needsStudyDataMigration) scheduleSave();
     appState.appData.tasks ??= [];
     appState.appData.settings.downloadFilingEnabled ??= false;
     appState.appData.settings.notifications ??= true;
@@ -191,7 +201,7 @@ export function renderSelectedCourse() {
 }
 
 export function setActivePage(page) {
-  if (!["desk", "resources", "notes", "tasks", "stats", "history"].includes(page)) return;
+  if (!["desk", "study", "resources", "notes", "tasks", "stats", "history"].includes(page)) return;
   appState.activePage = page;
   for (const button of pageNavButtons) {
     if (button.dataset.pageTarget === page) {
@@ -244,6 +254,7 @@ export function renderWorkspacePages() {
   renderTaskList();
   renderHistory();
   renderStats();
+  renderStudyHub();
 }
 
 export function renderCourseSelect(select) {

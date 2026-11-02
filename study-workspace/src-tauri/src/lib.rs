@@ -90,6 +90,81 @@ fn open_resource(
     launch::open_resource(&kind, &target)
 }
 
+fn resolve_study_source(
+    study: &serde_json::Value,
+    course_id: &str,
+    source_id: &str,
+    chapter_id: Option<&str>,
+) -> Result<(String, String), String> {
+    let course = study
+        .get("courses")
+        .and_then(serde_json::Value::as_object)
+        .and_then(|courses| courses.get(course_id))
+        .ok_or_else(|| "The selected course has no saved study data.".to_string())?;
+    let sources = course
+        .get("sources")
+        .and_then(serde_json::Value::as_array)
+        .ok_or_else(|| "The selected course has no saved study sources.".to_string())?;
+    let source = sources
+        .iter()
+        .find(|source| source.get("id").and_then(serde_json::Value::as_str) == Some(source_id))
+        .ok_or_else(|| "The selected study source is not saved in this course.".to_string())?;
+    let kind = source
+        .get("kind")
+        .and_then(serde_json::Value::as_str)
+        .ok_or_else(|| "The saved study source has no valid type.".to_string())?;
+    let source_target = source
+        .get("target")
+        .and_then(serde_json::Value::as_str)
+        .ok_or_else(|| "The saved study source has no valid location.".to_string())?;
+    let target = match chapter_id {
+        Some(chapter_id) => {
+            let chapters = source
+                .get("chapters")
+                .and_then(serde_json::Value::as_array)
+                .ok_or_else(|| "The saved study source has no chapters.".to_string())?;
+            let chapter = chapters
+                .iter()
+                .find(|chapter| {
+                    chapter.get("id").and_then(serde_json::Value::as_str) == Some(chapter_id)
+                })
+                .ok_or_else(|| {
+                    "The selected chapter is not saved under this source.".to_string()
+                })?;
+            match chapter.get("target") {
+                Some(target) => target
+                    .as_str()
+                    .ok_or_else(|| "The saved chapter has no valid location.".to_string())?,
+                None => source_target,
+            }
+        }
+        None => source_target,
+    };
+    if !matches!(kind, "file" | "folder" | "link") {
+        return Err("The saved study source type is not supported.".to_string());
+    }
+    Ok((kind.to_string(), target.to_string()))
+}
+
+#[tauri::command]
+fn open_study_source(
+    app: tauri::AppHandle,
+    state: tauri::State<'_, DataLock>,
+    course_id: String,
+    source_id: String,
+    chapter_id: Option<String>,
+) -> Result<(), String> {
+    let (kind, target) = {
+        let _guard = state
+            .0
+            .lock()
+            .map_err(|_| "Local data lock is unavailable.".to_string())?;
+        let data = data::load(&app)?;
+        resolve_study_source(&data.study, &course_id, &source_id, chapter_id.as_deref())?
+    };
+    launch::open_resource(&kind, &target)
+}
+
 #[tauri::command]
 fn set_download_watching(
     app: tauri::AppHandle,
@@ -153,6 +228,7 @@ pub fn run() {
             save_data,
             launch_course,
             open_resource,
+            open_study_source,
             set_download_watching,
             move_download_file,
             undo_download_move,
@@ -184,6 +260,47 @@ pub fn run() {
                     };
                     if let Err(error) = app.emit("tray-action", action) {
                         eprintln!("Could not send tray action to Desk Drawer: {error}");
+                    }
+
+                    #[cfg(test)]
+                    mod tests {
+                        use super::resolve_study_source;
+                        use serde_json::json;
+
+                        #[test]
+                        fn study_launcher_requires_an_exact_saved_course_source_and_chapter() {
+                            let study = json!({
+                                "courses": {
+                                    "course-1": {
+                                        "sources": [{
+                                            "id": "source-1",
+                                            "kind": "link",
+                                            "target": "https://example.com/lecture",
+                                            "chapters": [
+                                                { "id": "chapter-1" },
+                                                { "id": "chapter-2", "target": "https://example.com/section" }
+                                            ]
+                                        }]
+                                    }
+                                }
+                            });
+
+                            assert_eq!(
+                                resolve_study_source(&study, "course-1", "source-1", None).unwrap(),
+                                ("link".to_string(), "https://example.com/lecture".to_string())
+                            );
+                            assert_eq!(
+                                resolve_study_source(&study, "course-1", "source-1", Some("chapter-1")).unwrap(),
+                                ("link".to_string(), "https://example.com/lecture".to_string())
+                            );
+                            assert_eq!(
+                                resolve_study_source(&study, "course-1", "source-1", Some("chapter-2")).unwrap(),
+                                ("link".to_string(), "https://example.com/section".to_string())
+                            );
+                            assert!(resolve_study_source(&study, "course-2", "source-1", None).is_err());
+                            assert!(resolve_study_source(&study, "course-1", "not-saved", None).is_err());
+                            assert!(resolve_study_source(&study, "course-1", "source-1", Some("not-saved")).is_err());
+                        }
                     }
                 })
                 .on_tray_icon_event(|tray, event| {

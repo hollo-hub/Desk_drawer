@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#cfd9f2" />
     <title>Desk Drawer Study</title>
     <link rel="stylesheet" href="/src/style.css" />
+    <link rel="stylesheet" href="/src/study.css" />
   </head>
   <body>
     <div class="app-shell">
@@ -19,6 +20,7 @@
         </a>
         <nav class="page-nav" aria-label="Workspace pages">
           <button class="page-nav-button" type="button" data-page-target="desk" aria-current="page">Desk</button>
+          <button class="page-nav-button" type="button" data-page-target="study">Study</button>
           <button class="page-nav-button" type="button" data-page-target="resources">Resources</button>
           <button class="page-nav-button" type="button" data-page-target="notes">Notes</button>
           <button class="page-nav-button" type="button" data-page-target="tasks">Tasks</button>
@@ -76,6 +78,100 @@
           <div class="dock-actions">
             <button id="add-course" class="dock-icon-button" type="button" aria-label="Add course" title="Add course">+</button>
             <button id="edit-course" class="dock-edit-button" type="button">Edit</button>
+          </div>
+        </section>
+      </main>
+
+      <main id="study-page" class="content-page app-page" aria-labelledby="study-heading" hidden>
+        <section class="study-hub" aria-label="Course study hub">
+          <aside class="study-course-sidebar" aria-label="Study courses">
+            <h2>Courses</h2>
+            <div id="study-course-list" class="study-course-list" role="group" aria-label="Choose a study course"></div>
+            <button id="study-add-course" class="session-secondary-button" type="button">Add course</button>
+          </aside>
+          <div class="study-hub-content">
+            <div class="study-hub-toolbar">
+              <div>
+                <p class="page-eyebrow">Your course workspace</p>
+                <h1 id="study-heading">Study</h1>
+              </div>
+              <div class="study-toolbar-actions">
+                <label class="study-skin-picker" for="study-skin">
+                  <span>Study style</span>
+                  <select id="study-skin">
+                    <option value="classic">Classic</option>
+                    <option value="arc">Arc</option>
+                    <option value="mono">Mono</option>
+                    <option value="paper">Paper</option>
+                  </select>
+                </label>
+                <button id="open-command-palette" class="session-secondary-button" type="button">Commands <kbd>Ctrl K</kbd></button>
+              </div>
+            </div>
+            <p id="study-empty-state" class="page-empty-state" hidden>Add a course to start your course study hub.</p>
+            <p id="study-data-warning" class="study-data-warning" role="status" hidden></p>
+            <div id="study-course-content">
+              <section class="study-today" aria-labelledby="study-today-heading">
+                <div class="study-section-heading">
+                  <div><p class="page-eyebrow">Your next steps</p><h2 id="study-today-heading">Today</h2></div>
+                  <div class="study-today-actions">
+                    <button id="study-interleave-review" class="session-secondary-button" type="button" data-study-action="interleave-review" hidden></button>
+                    <button class="start-button study-start-button" type="button" data-study-action="start-session">Start focus session</button>
+                  </div>
+                </div>
+                <div class="study-today-grid">
+                  <article class="study-summary-card"><span>Reviews due</span><strong id="study-review-count">0</strong><span id="study-review-detail">Questions ready to recall</span></article>
+                  <article class="study-summary-card"><span>Open tasks</span><strong id="study-task-count">0</strong><span id="study-task-detail">No tasks due today</span></article>
+                  <article class="study-summary-card"><span>Next exam</span><strong id="study-exam-date">Not set</strong><span id="study-exam-detail">Add a date to plan reviews</span></article>
+                </div>
+                <ul id="study-review-list" class="study-review-list" aria-label="Reviews due today"></ul>
+              </section>
+
+              <div class="study-dashboard-grid">
+                <section class="study-section study-sources" aria-labelledby="study-sources-heading">
+                  <div class="study-section-heading">
+                    <div><p class="page-eyebrow">Read, then recall</p><h2 id="study-sources-heading">Sources &amp; chapters</h2></div>
+                    <span id="study-chapter-progress" class="study-progress-label"></span>
+                  </div>
+                  <form id="study-source-form" class="study-source-form">
+                    <label for="study-source-title">Source title</label>
+                    <input id="study-source-title" type="text" maxlength="160" required placeholder="e.g. Week 4 lecture" />
+                    <div class="study-source-entry">
+                      <label for="study-source-kind">Type</label>
+                      <select id="study-source-kind">
+                        <option value="link">Web link</option>
+                        <option value="file">File</option>
+                        <option value="folder">Folder</option>
+                      </select>
+                      <label class="visually-hidden" for="study-source-target">Web address or file path</label>
+                      <input id="study-source-target" type="text" maxlength="4096" required placeholder="https://…" />
+                      <button id="study-source-browse" class="resource-browse-button" type="button" hidden>Choose…</button>
+                    </div>
+                    <button class="start-button task-add-button" type="submit">Add source</button>
+                    <p id="study-source-message" class="study-form-message" role="status" aria-live="polite"></p>
+                  </form>
+                  <div id="study-source-list" class="study-source-list"></div>
+                </section>
+
+                <div class="study-side-panels">
+                  <section class="study-section" aria-labelledby="study-planning-heading">
+                    <p class="page-eyebrow">Make a plan</p><h2 id="study-planning-heading">Course dates &amp; time</h2>
+                    <label class="study-setting-field" for="study-exam-input"><span>Exam date</span><input id="study-exam-input" type="date" /></label>
+                    <label class="study-setting-field" for="study-goal-input"><span>Weekly study goal <small>Optional</small></span><span class="study-goal-entry"><input id="study-goal-input" type="number" min="1" max="1680" step="5" placeholder="Off" /><span>minutes</span></span></label>
+                    <p id="study-weekly-time" class="study-weekly-time"></p>
+                  </section>
+                  <section class="study-section" aria-labelledby="study-tasks-heading">
+                    <div class="study-section-heading"><div><p class="page-eyebrow">Deadline-based</p><h2 id="study-tasks-heading">Tasks</h2></div><button class="text-action" type="button" data-study-action="add-task">Add task</button></div>
+                    <ul id="study-task-list" class="study-compact-list"></ul>
+                    <button class="text-action" type="button" data-study-action="open-tasks">All tasks</button>
+                  </section>
+                  <section class="study-section" aria-labelledby="study-notes-heading">
+                    <div class="study-section-heading"><div><p class="page-eyebrow">Keep your thoughts</p><h2 id="study-notes-heading">Notes</h2></div><button class="text-action" type="button" data-study-action="open-notes">Open notes</button></div>
+                    <p id="study-note-summary" class="study-note-summary"></p>
+                  </section>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
       </main>
@@ -307,6 +403,51 @@
           <button class="start-button task-add-button" type="submit">Save summary</button>
         </div>
       </form>
+    </dialog>
+
+    <dialog id="recall-dialog" class="recall-dialog" aria-labelledby="recall-heading">
+      <div class="recall-card">
+        <div class="study-section-heading"><div><p class="page-eyebrow">Active recall</p><h2 id="recall-heading">Recall a chapter</h2></div><button id="close-recall" class="close-button" type="button">Close</button></div>
+        <section id="recall-read-stage">
+          <p id="recall-read-prompt" class="recall-prompt"></p>
+          <p id="recall-read-location" class="recall-location"></p>
+          <button id="recall-open-source" class="resource-browse-button" type="button">Open saved source</button>
+          <p class="page-save-hint">Read the saved source, close or minimize it, then hide it and write what you remember. Aim for about 15 minutes; finish when you are ready.</p>
+          <button id="recall-begin" class="start-button" type="button">Hide source &amp; begin recall</button>
+        </section>
+        <section id="recall-writing-stage" hidden>
+          <p id="recall-timer" class="recall-timer" role="timer" aria-label="Recall elapsed time">00:00</p>
+          <p class="page-save-hint">The source is hidden. Write what you remember in your own words.</p>
+          <p id="recall-writing-prompt" class="recall-prompt" hidden></p>
+          <label for="recall-answer">What can you recall?</label>
+          <textarea id="recall-answer" rows="8" maxlength="10000" placeholder="Write from memory…" autocomplete="off"></textarea>
+          <button id="recall-reveal" class="start-button" type="button">Reveal source &amp; compare</button>
+        </section>
+        <section id="recall-rating-stage" hidden>
+          <p id="recall-reveal-prompt" class="recall-prompt"></p>
+          <button id="recall-compare-source" class="resource-browse-button" type="button">Open saved source to compare</button>
+          <label for="recall-gap">Save a question to revisit? <small>Optional; write your own.</small></label>
+          <textarea id="recall-gap" rows="3" maxlength="1000" placeholder="A question you want to practice later"></textarea>
+          <fieldset class="recall-rating-group"><legend>How well did you recall it?</legend>
+            <button type="button" data-recall-rating="red"><span>Poor</span><small>Need to rebuild it</small></button>
+            <button type="button" data-recall-rating="yellow"><span>Okay</span><small>Partly remembered</small></button>
+            <button type="button" data-recall-rating="green"><span>Solid</span><small>Recalled confidently</small></button>
+          </fieldset>
+        </section>
+        <p id="recall-message" class="study-form-message" role="status" aria-live="polite"></p>
+      </div>
+    </dialog>
+
+    <dialog id="command-palette" class="command-palette" aria-labelledby="command-heading">
+      <div class="command-card">
+        <div class="study-section-heading"><div><p class="page-eyebrow">Quick actions · Ctrl/Cmd K</p><h2 id="command-heading">What would you like to do?</h2></div><button id="close-command-palette" class="close-button" type="button">Close</button></div>
+        <div class="command-list" role="group" aria-label="Study actions">
+          <button type="button" data-command="source">Add a source</button>
+          <button type="button" data-command="task">Add a task</button>
+          <button type="button" data-command="recall">Start recall</button>
+          <button type="button" data-command="hub">Open course hub</button>
+        </div>
+      </div>
     </dialog>
 
     <div id="guide-scrim" class="guide-scrim" aria-hidden="true" hidden></div>

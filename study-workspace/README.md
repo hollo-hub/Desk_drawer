@@ -1,4 +1,4 @@
-# Desk Drawer Study v2
+# Desk Drawer Study v3
 
 Desk Drawer Study is a local-first study workspace for Windows. It reduces the
 start-of-session friction of opening a course folder, finding resources,
@@ -9,6 +9,20 @@ The v2 direction is a **cozy 16-bit study console**: a practical workspace
 with a recognizable retro identity, a pixel Desk Buddy, a calm timer, and
 short paths to useful study actions. It should feel deliberately designed,
 not like a generic AI productivity dashboard.
+
+## What's new in v3
+
+- The Study hub organizes each course's sources and chapters alongside its
+  notes, tasks, sessions, exam date, and weekly goal.
+- Sources can point to folders, files, or HTTP(S) links. They remain references
+  to the user's files; Desk Drawer does not copy them.
+- Active recall supports user-authored questions, answer reveal, self-rating,
+  scheduled Leitner reviews, and interleaving across courses with due reviews.
+  Answers are not saved.
+- Four study skins (Classic, Arc, Mono, and Paper) each support light and dark
+  themes. A keyboard-accessible command palette is available with Ctrl/Cmd+K.
+- V3 adds course-scoped study data while preserving existing V2 courses, notes,
+  tasks, settings, and history during migration.
 
 ## What changed in v2
 
@@ -210,7 +224,8 @@ The full creative handoff is in
 - No telemetry is collected.
 - No cloud service is required for core use.
 - Courses, notes, tasks, settings, and sessions are stored in the local app
-  data directory.
+  data directory. V3 study sources, chapters, goals, and review history are
+  stored there as well.
 - Writes use a temporary file and replacement strategy to reduce corruption
   risk, with a backup copy.
 - URLs are restricted to `http` and `https`.
@@ -233,6 +248,9 @@ The full creative handoff is in
 | `src/note-model.js` | Note creation, migration, update, and search |
 | `src/resource-model.js` | Resource groups and assignments |
 | `src/task-model.js` | Course task operations |
+| `src/app/study-hub.js` | Course study hub, sources, chapters, recall, and review flows |
+| `src/study/study-data-model.js` | Loss-preserving study data migration and scheduling |
+| `src/study.css` | Study hub layout, skins, responsive and accessible states |
 | `src/stats-model.js` | Weekly totals and streak calculations |
 | `src/timer-model.js` | Timestamp-based elapsed, remaining, and halo calculations |
 | `src-tauri/src/data.rs` | Persisted data model and local storage |
@@ -241,9 +259,9 @@ The full creative handoff is in
 | `tests/` | Frontend model, timer, buddy, notes, and statistics tests |
 | `docs/` | Product, UX, testing, buddy, and creative direction documents |
 
-## Validation completed
+## V2 validation history
 
-The v2 app has been checked with:
+The v2 app was checked with:
 
 - Frontend tests: 25 passing
 - Vite production build
@@ -254,6 +272,16 @@ The v2 app has been checked with:
 - Windows GitHub Actions build
 - Windows NSIS installer artifact verification
 - Published installer checksum comparison against the build artifact
+
+## V3 validation status
+
+- Frontend tests: 49 passing.
+- Vite production build: passing.
+- Fourteen headless visual and interaction scenarios: passing with no browser
+  page errors, including all four skins in light and dark themes.
+- Rust formatting check: passing.
+- Rust tests and the Windows NSIS package are not yet verified. They require
+  MSVC; the local Build Tools setup could not download its compiler packages.
 
 ## Release and source layout
 
@@ -270,7 +298,7 @@ The v2 app has been checked with:
 - A `study-vX.Y.Z` tag runs frontend tests, Rust checks, the Windows build, and
   uploads the installer as an Actions artifact.
 
-## Future v2.1 direction
+## Future optional integrations
 
 Google account integration is possible, but it should be optional and
 permission-scoped:

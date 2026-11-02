@@ -11,10 +11,14 @@ const DATA={schemaVersion:3,courses:[
  settings:{defaultLengthSec:1500,theme:'light',tourDone:true,notifications:false,soundEffects:false,downloadFilingEnabled:false,dashboardComponents:['character','course-dock','next-task']}};
 const DIST=process.argv[2],OUT=process.argv[3];fs.mkdirSync(OUT,{recursive:true});
 const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.png':'image/png'};
-const srv=http.createServer((q,res)=>{let f=path.join(DIST,q.url.split('?')[0]);if(f.endsWith('/'))f+='index.html';fs.readFile(f,(e,d)=>{if(e){res.writeHead(404);res.end();return}res.writeHead(200,{'content-type':mime[path.extname(f)]||'application/octet-stream'});res.end(d)})}).listen(0);
+const root=path.resolve(DIST);
+const srv=http.createServer((q,res)=>{const pathname=decodeURIComponent(new URL(q.url,'http://127.0.0.1').pathname);const relative=pathname.replace(/^\/+/,'')||'index.html';const f=path.resolve(root,relative);if(f!==root&&!f.startsWith(`${root}${path.sep}`)){res.writeHead(404);res.end();return}fs.readFile(f,(e,d)=>{if(e){res.writeHead(404);res.end();return}res.writeHead(200,{'content-type':mime[path.extname(f)]||'application/octet-stream'});res.end(d)})}).listen(0);
 await new Promise(r=>srv.on('listening',r));const port=srv.address().port;
 const hard=setTimeout(()=>{console.log('HARD TIMEOUT');process.exit(3)},240000);
-const b=await puppeteer.launch({args:chromium.args,executablePath:await chromium.executablePath(),headless:'shell'});
+const browserPath = process.env.CHROME_EXECUTABLE_PATH;
+const b=await puppeteer.launch(browserPath
+  ? {args:['--no-sandbox','--disable-gpu'],executablePath:browserPath,headless:true}
+  : {args:chromium.args,executablePath:await chromium.executablePath(),headless:'shell'});
 const log=[];
 async function run(name,{theme='light',skin,steps}){
   const p=await b.newPage();await p.setViewport({width:1280,height:800});

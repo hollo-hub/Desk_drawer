@@ -12,6 +12,8 @@ node scenario.mjs ../../dist ./shots-after
 node diff.mjs ./shots-before ./shots-after
 ```
 
+On Windows, install a Chromium-compatible browser and set `CHROME_EXECUTABLE_PATH` to its executable before running the scenario. On other platforms, the bundled headless Chromium is used by default.
+
 `diff.mjs` reports differing screenshots and whether the backend calls (`invoke`) were identical.
 A 192x16 pixel strip around the ghost sprite can differ between identical runs because its hem
 animates; anything else that differs is a real change.

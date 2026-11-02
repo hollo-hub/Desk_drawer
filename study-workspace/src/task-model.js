@@ -1,6 +1,13 @@
-export function createStudyTask(courseId, title, id = crypto.randomUUID(), createdAt = new Date().toISOString()) {
+export function createStudyTask(
+  courseId,
+  title,
+  id = crypto.randomUUID(),
+  createdAt = new Date().toISOString(),
+  dueAt = null,
+) {
   const normalizedTitle = title.trim();
   if (!courseId || !normalizedTitle || normalizedTitle.length > 160) return null;
+  if (dueAt && !Number.isFinite(new Date(dueAt).getTime())) return null;
 
   return {
     id,
@@ -8,6 +15,7 @@ export function createStudyTask(courseId, title, id = crypto.randomUUID(), creat
     title: normalizedTitle,
     createdAt,
     completed: false,
+    ...(dueAt ? { dueAt } : {}),
   };
 }
 

@@ -4,6 +4,7 @@ import {
   buildRecallGrid, createReviewItem, dueReviews, groupTasksByDue, nextInterleavedCourse,
   prospectiveTimetable, rateReview, taskReminder, DAY_MS,
 } from "../src/study/study-model.js";
+import { localDateInputToEnd } from "../src/date-model.js";
 
 const at = (y, m, d, h = 9) => new Date(y, m - 1, d, h);
 const base = () => createReviewItem({ id: "r1", courseId: "c1", unitId: "u1", prompt: "What does Ohm's law relate?", now: at(2026, 11, 1) });
@@ -68,6 +69,9 @@ test("the prospective timetable doubles the gap and stops before the exam", () =
   assert.deepEqual(table.map((e) => e.date), ["2026-11-01", "2026-11-02", "2026-11-04", "2026-11-08", "2026-11-16"]);
   const near = prospectiveTimetable({ topics: [{ id: "t1", title: "Ohm" }], startAt: at(2026, 11, 1), examAt: at(2026, 11, 5) });
   assert.deepEqual(near.map((e) => e.date), ["2026-11-01", "2026-11-02", "2026-11-04"]);
+  const dateOnlyExam = localDateInputToEnd("2026-11-05");
+  const beforeExam = prospectiveTimetable({ topics: [{ id: "t1", title: "Ohm" }], startAt: at(2026, 11, 1), examAt: dateOnlyExam });
+  assert.equal(beforeExam.some((entry) => entry.date === "2026-11-05"), false);
 });
 
 test("new topics start on consecutive days", () => {
@@ -110,6 +114,14 @@ test("tasks group by deadline and skip completed ones", () => {
   assert.deepEqual(Object.fromEntries(Object.entries(groups).map(([k, v]) => [k, v.map((t) => t.id)])), {
     overdue: ["late"], today: ["today"], thisWeek: ["week"], later: ["later"], noDate: ["none"],
   });
+});
+
+test("date-only task deadlines remain due today until the local day ends", () => {
+  const dueAt = localDateInputToEnd("2026-11-04");
+  const groups = groupTasksByDue([{ id: "today", dueAt, completed: false }], at(2026, 11, 4, 12));
+
+  assert.equal(groups.today[0].id, "today");
+  assert.equal(groups.overdue.length, 0);
 });
 
 test("task reminders say how late or how soon", () => {

@@ -13,7 +13,7 @@ import { renderHistory } from "./history.js";
 import { renderNotesWorkspace } from "./notes.js";
 import { renderResourceGroups, renderResourceList } from "./resources.js";
 import { renderStats } from "./stats.js";
-import { renderTaskList } from "./tasks.js";
+import { renderTaskList, startTaskReminderRefresh } from "./tasks.js";
 import { scheduleSave, setSaveStatus } from "./persistence.js";
 import { setupDownloadFiling, setupTrayActions } from "./downloads.js";
 
@@ -38,6 +38,7 @@ export async function loadCourses() {
     updateLengthSelection();
     appState.selectedCourseId = appState.appData.courses[0]?.id ?? null;
     render();
+    startTaskReminderRefresh();
     setSaveStatus("");
     applyAppearance();
     updateReducedMotionPreference();
@@ -202,6 +203,7 @@ export function setActivePage(page) {
   for (const element of appPages) {
     element.hidden = element.id !== `${page}-page`;
   }
+  if (page === "tasks") renderTaskList();
 }
 
 export function selectWorkspaceCourse(courseId) {

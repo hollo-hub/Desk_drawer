@@ -5,12 +5,18 @@
 // (Leitner boxes, doubling revision timetable, retrospective colour grid,
 // interleaving). The code is original; the guide's wording is not reproduced.
 
+import { addLocalDays, localDateKey, localStartOfDay, previousLocalDay } from "../date-model.js";
+
 export const DAY_MS = 24 * 60 * 60 * 1000;
 export const RATINGS = ["red", "yellow", "green"]; // poor, adequate, sufficient recall
 // Boxes 1-4 repeat on these gaps; the last box means "review the day before the exam".
 export const DEFAULT_BOX_DAYS = [1, 3, 7, 14];
 
-const asDate = (value) => (value instanceof Date ? value : new Date(value));
+const asDate = (value) => {
+  const date = value instanceof Date ? value : new Date(value);
+  if (!Number.isFinite(date.getTime())) throw new Error("A valid date is required.");
+  return date;
+};
 const iso = (value) => asDate(value).toISOString();
 
 export function createReviewItem({ id, courseId, unitId = null, sourceId = null, prompt, now }) {
@@ -43,7 +49,7 @@ export function rateReview(item, rating, now, { examAt = null, boxDays = DEFAULT
   if (box < examBox) dueMs = nowMs + boxDays[box - 1] * DAY_MS;
   else dueMs = nowMs + boxDays[boxDays.length - 1] * 2 * DAY_MS; // no exam date: a long gap
   if (examAt) {
-    const dayBeforeExam = asDate(examAt).getTime() - DAY_MS;
+    const dayBeforeExam = previousLocalDay(asDate(examAt)).getTime();
     dueMs = box === examBox ? dayBeforeExam : Math.min(dueMs, dayBeforeExam);
     dueMs = Math.max(dueMs, nowMs); // never schedule into the past
   }
@@ -67,23 +73,18 @@ export function dueReviews(items, now) {
     .sort((a, b) => RANK[lastRating(a)] - RANK[lastRating(b)] || new Date(a.dueAt) - new Date(b.dueAt));
 }
 
-const dateKey = (value) => {
-  const d = asDate(value);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-};
-
 // Prospective revision timetable: each topic is first studied on its own day, then revisited with a
 // gap that doubles each time (days 1, 2, 4, 8, 16, ... counting from the first study day).
 export function prospectiveTimetable({ topics, startAt, examAt, maxSessions = 6 }) {
   const start = asDate(startAt);
-  const examMs = asDate(examAt).getTime();
+  const examDate = localDateKey(examAt);
   const entries = [];
   topics.forEach((topic, index) => {
     for (let n = 1; n <= maxSessions; n += 1) {
       const offsetDays = index + 2 ** (n - 1) - 1;
       const day = new Date(start.getFullYear(), start.getMonth(), start.getDate() + offsetDays);
-      if (day.getTime() >= examMs) break;
-      entries.push({ topicId: topic.id, title: topic.title, date: dateKey(day), session: n });
+      if (localDateKey(day) >= examDate) break;
+      entries.push({ topicId: topic.id, title: topic.title, date: localDateKey(day), session: n });
     }
   });
   // On a shared day, revisits come before new material (retrieve first, then learn).
@@ -99,7 +100,7 @@ export function buildRecallGrid(items, units) {
     const cells = byUnit.get(item.unitId);
     if (!cells) continue;
     for (const entry of item.history) {
-      const key = dateKey(entry.at);
+      const key = localDateKey(entry.at);
       dates.add(key);
       const prior = cells.get(key);
       if (!prior || RANK[entry.rating] < RANK[prior]) cells.set(key, entry.rating);
@@ -130,19 +131,21 @@ export function nextInterleavedCourse(sessions, courseIds) {
 
 // Lean task list: group open tasks by deadline.
 export function groupTasksByDue(tasks, now) {
-  const today = asDate(now);
-  const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const currentTime = asDate(now).getTime();
+  const startOfToday = localStartOfDay(now);
+  const startOfTomorrow = addLocalDays(startOfToday, 1).getTime();
+  const startOfNextWeek = addLocalDays(startOfToday, 7).getTime();
   const groups = { overdue: [], today: [], thisWeek: [], later: [], noDate: [] };
   for (const task of tasks) {
     if (task.completed) continue;
     if (!task.dueAt) { groups.noDate.push(task); continue; }
-    const due = new Date(task.dueAt).getTime();
-    if (due < asDate(now).getTime()) groups.overdue.push(task);
-    else if (due < startOfToday + DAY_MS) groups.today.push(task);
-    else if (due < startOfToday + 7 * DAY_MS) groups.thisWeek.push(task);
+    const due = asDate(task.dueAt).getTime();
+    if (due < currentTime) groups.overdue.push(task);
+    else if (due < startOfTomorrow) groups.today.push(task);
+    else if (due < startOfNextWeek) groups.thisWeek.push(task);
     else groups.later.push(task);
   }
-  const byDue = (a, b) => new Date(a.dueAt) - new Date(b.dueAt);
+  const byDue = (a, b) => asDate(a.dueAt) - asDate(b.dueAt);
   for (const key of ["overdue", "today", "thisWeek", "later"]) groups[key].sort(byDue);
   return groups;
 }
@@ -150,7 +153,7 @@ export function groupTasksByDue(tasks, now) {
 // A short reminder for a task that is late or about to be (null when no nudge is needed).
 export function taskReminder(task, now) {
   if (task.completed || !task.dueAt) return null;
-  const diff = new Date(task.dueAt).getTime() - asDate(now).getTime();
+  const diff = asDate(task.dueAt).getTime() - asDate(now).getTime();
   const plural = (n, unit) => `${n} ${unit}${n === 1 ? "" : "s"}`;
   if (diff < 0) {
     const late = -diff;

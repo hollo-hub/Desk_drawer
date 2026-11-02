@@ -642,20 +642,33 @@ a:focus-visible {
 
 .task-form {
   margin-bottom: 20px;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(150px, auto) auto;
+  align-items: end;
   gap: 9px;
 }
 
-.task-form input {
+.task-form > input,
+.task-due-input input {
   min-width: 0;
   min-height: 43px;
-  flex: 1;
   padding: 0 13px;
   border: 1px solid rgb(255 255 255 / 90%);
   border-radius: 13px;
   background: rgb(255 255 255 / 72%);
   color: #2b2d42;
   font-size: 13px;
+}
+
+.task-due-input {
+  display: grid;
+  gap: 5px;
+  color: #77798d;
+  font-size: 10px;
+}
+
+.task-due-input input {
+  width: 100%;
 }
 
 .task-add-button {
@@ -680,6 +693,26 @@ a:focus-visible {
   text-align: center;
 }
 
+.task-group {
+  display: grid;
+  gap: 8px;
+}
+
+.task-group-heading {
+  margin: 10px 0 0;
+  color: #62657f;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.task-group-list {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  list-style: none;
+}
+
 .task-item {
   min-height: 48px;
   padding: 8px 10px;
@@ -689,6 +722,22 @@ a:focus-visible {
   border: 1px solid rgb(255 255 255 / 88%);
   border-radius: 13px;
   background: rgb(255 255 255 / 62%);
+}
+
+.task-details {
+  display: grid;
+  justify-items: end;
+  gap: 3px;
+  color: #77798d;
+  font-size: 10px;
+}
+
+.task-reminder[data-kind="overdue"] {
+  color: #a24958;
+}
+
+.task-reminder[data-kind="due-soon"] {
+  color: #8d6320;
 }
 
 .task-toggle {
@@ -1571,6 +1620,14 @@ a:focus-visible {
     min-height: 32px;
   }
 
+  .task-form {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .task-form > input {
+    grid-column: 1 / -1;
+  }
+
   .content-page {
     padding: 18px 0;
   }
@@ -2097,6 +2154,9 @@ a:focus-visible {
   :root[data-theme="dark"] .resource-group-form input,
   :root[data-theme="dark"] .resource-link-form input,
   :root[data-theme="dark"] .task-form input,
+  :root[data-theme="dark"] .task-due-input,
+  :root[data-theme="dark"] .task-details,
+  :root[data-theme="dark"] .task-group-heading,
   :root[data-theme="dark"] .guide-card,
   :root[data-theme="dark"] .settings-dialog {
     color: #eeeefa;
@@ -2124,6 +2184,14 @@ a:focus-visible {
 
   :root[data-theme="dark"] .custom-timer-entry input {
     color: #eeeefa;
+  }
+
+  :root[data-theme="dark"] .task-reminder[data-kind="overdue"] {
+    color: #f0a1ae;
+  }
+
+  :root[data-theme="dark"] .task-reminder[data-kind="due-soon"] {
+    color: #f0d18b;
   }
 
   @keyframes cat-bob {

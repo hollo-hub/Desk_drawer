@@ -190,10 +190,15 @@
           <form id="task-form" class="task-form" hidden>
             <label class="visually-hidden" for="new-task-title">New task</label>
             <input id="new-task-title" type="text" maxlength="160" required autocomplete="off" placeholder="What’s the next small step?" />
+            <label class="task-due-input">
+              <span>Due date (optional)</span>
+              <input id="new-task-due-date" type="date" aria-label="Due date (optional)" />
+            </label>
             <button class="start-button task-add-button" type="submit">Add task</button>
           </form>
           <p id="task-list-empty" class="task-list-empty" hidden>No tasks yet. Add one small next step.</p>
           <ul id="task-list" class="task-list" aria-label="Course tasks"></ul>
+          <p class="page-save-hint">Due dates use your local calendar. In-app task reminders follow the existing Session-end notifications setting.</p>
         </section>
       </main>
 

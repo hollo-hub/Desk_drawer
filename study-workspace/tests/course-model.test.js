@@ -24,6 +24,7 @@ import {
   tasksForCourse,
   toggleStudyTask,
 } from "../src/task-model.js";
+import { localDateInputToEnd } from "../src/date-model.js";
 
 test("the first course starts empty and contains no seeded sample data", () => {
   const course = createEmptyCourse();
@@ -143,6 +144,15 @@ test("course tasks can be added, scoped, and completed", () => {
   assert.equal(createStudyTask("course-1", "x".repeat(161)), null);
   assert.equal(toggleStudyTask(tasks, "task-1")[0].completed, true);
   assert.equal(tasks[0].completed, false);
+});
+
+test("tasks keep an optional local end-of-day deadline", () => {
+  const dueAt = localDateInputToEnd("2026-03-08");
+  const task = createStudyTask("course-1", "Submit lab", "task-due", "2026-03-01", dueAt);
+
+  assert.equal(task.dueAt, dueAt);
+  assert.equal(createStudyTask("course-1", "Bad date", "task-bad", "2026-03-01", "not-a-date"), null);
+  assert.equal(createStudyTask("course-1", "No date").dueAt, undefined);
 });
 
 test("legacy course resources appear in a default group without changing their paths", () => {

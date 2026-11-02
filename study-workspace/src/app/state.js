@@ -23,6 +23,7 @@ export const appState = {
   lastWindowTitle: "Desk Drawer Study",
   sessionFinishing: false,
   activePage: "desk",
+  taskReminderTimer: null,
   selectedNoteId: null,
   notesWorkspaceCourseId: null,
   latestSessionId: null,

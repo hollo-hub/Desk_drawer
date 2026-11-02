@@ -74,7 +74,10 @@ settingsDialog.addEventListener("close", () => settingsGearButton.setAttribute("
 
 document.querySelector("#theme-setting").addEventListener("change", updateThemeSetting);
 
-document.querySelector("#notifications-setting").addEventListener("change", updateNotificationsSetting);
+document.querySelector("#notifications-setting").addEventListener("change", async () => {
+  await updateNotificationsSetting();
+  renderTaskList();
+});
 
 soundEffectsSetting.addEventListener("change", updateSoundEffectsSetting);
 

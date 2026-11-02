@@ -72,6 +72,8 @@ export const taskForm = document.querySelector("#task-form");
 
 export const newTaskTitleInput = document.querySelector("#new-task-title");
 
+export const newTaskDueDateInput = document.querySelector("#new-task-due-date");
+
 export const taskList = document.querySelector("#task-list");
 
 export const resourcesEmptyState = document.querySelector("#resources-empty-state");

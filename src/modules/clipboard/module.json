@@ -1,0 +1,10 @@
+{
+  "id": "clipboard",
+  "name": "Clipboard",
+  "icon": "C",
+  "description": "Save, browse, and reuse recent clipboard text.",
+  "version": "1.0.0",
+  "defaultEnabled": false,
+  "panelId": "p-clip",
+  "key": "1"
+}

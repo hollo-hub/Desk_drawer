@@ -1,0 +1,9 @@
+{
+  "id": "keep-awake",
+  "name": "Keep Awake",
+  "icon": "A",
+  "description": "Temporarily prevent Windows from sleeping or turning off the display.",
+  "version": "1.0.0",
+  "defaultEnabled": false,
+  "panelId": "p-awake"
+}

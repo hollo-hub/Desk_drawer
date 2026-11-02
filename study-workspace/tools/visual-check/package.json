@@ -1,0 +1,12 @@
+{
+  "name": "visual-check",
+  "private": true,
+  "type": "module",
+  "description": "Headless-browser screenshot comparison used to prove refactors do not change the UI.",
+  "dependencies": {
+    "@sparticuz/chromium": "^140.0.0",
+    "pixelmatch": "^7.0.0",
+    "pngjs": "^7.0.0",
+    "puppeteer-core": "^24.0.0"
+  }
+}

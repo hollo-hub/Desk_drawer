@@ -1,0 +1,10 @@
+{
+  "id": "rename",
+  "name": "Rename",
+  "icon": "R",
+  "description": "Preview and rename selected or dropped files.",
+  "version": "1.0.0",
+  "defaultEnabled": false,
+  "panelId": "p-ren",
+  "key": "4"
+}

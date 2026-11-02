@@ -1,0 +1,10 @@
+{
+  "id": "links",
+  "name": "Links",
+  "icon": "L",
+  "description": "Save and search websites, folders, and apps.",
+  "version": "1.0.0",
+  "defaultEnabled": false,
+  "panelId": "p-links",
+  "key": "2"
+}

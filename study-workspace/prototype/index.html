@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Desk Drawer – concept</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg1:#f6e6dc;--bg2:#cfd9f2;--glass:rgba(255,255,255,.55);--sheet:rgba(255,255,255,.88);--edge:rgba(255,255,255,.8);--ink:#2b2d42;--muted:#5d6180;--p1:#f7efe6;--p2:#d9c9bb;--p3:#c4b2a4;--rim:rgba(255,255,255,0);--field:rgba(255,255,255,.6);--accent:#e58a9b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#1d1f36;--bg2:#2e2a4a;--glass:rgba(40,42,68,.55);--sheet:rgba(32,32,56,.92);--edge:rgba(255,255,255,.14);--ink:#ecebf5;--muted:#a9acca;--p1:#4a4a6e;--p2:#37375a;--p3:#2c2c4a;--rim:rgba(255,255,255,.55);--field:rgba(255,255,255,.07)}}
+:root[data-theme="dark"]{--bg1:#1d1f36;--bg2:#2e2a4a;--glass:rgba(40,42,68,.55);--sheet:rgba(32,32,56,.92);--edge:rgba(255,255,255,.14);--ink:#ecebf5;--muted:#a9acca;--p1:#4a4a6e;--p2:#37375a;--p3:#2c2c4a;--rim:rgba(255,255,255,.55);--field:rgba(255,255,255,.07)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:linear-gradient(160deg,var(--bg1),var(--bg2)) fixed;color:var(--ink);font-family:ui-rounded,"SF Pro Rounded",system-ui,-apple-system,"Segoe UI",sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.app{max-width:760px;min-height:100vh;margin:0 auto;padding:14px 16px 16px;display:flex;flex-direction:column}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.brand b{font-size:18px}.brand span{display:block;font-size:12px;color:var(--muted)}
+.acts{display:flex;gap:8px}
+.ghost{background:var(--glass);border:1px solid var(--edge);border-radius:999px;padding:6px 14px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.stage{flex:1;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 0}
+.bubble{min-height:36px;background:var(--glass);border:1px solid var(--edge);border-radius:14px;padding:7px 14px;font-size:14px;max-width:92%}
+.scene{position:relative;width:100%;max-width:420px;height:300px;perspective:900px}
+.tilt{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(var(--ry,0deg)) rotateY(var(--rx,0deg));transition:transform .2s ease-out}
+.plat{position:absolute;left:50%;bottom:6px;width:290px;margin-left:-145px}
+.catwrap{position:absolute;left:50%;bottom:86px;width:128px;height:128px;margin-left:-64px}
+#cat svg{display:block;filter:drop-shadow(0 0 1px var(--rim)) drop-shadow(0 0 1px var(--rim))}
+.halo{position:absolute;left:-36px;top:-44px;width:200px;height:200px;transform:rotate(-90deg);pointer-events:none}
+.halo circle{fill:none;stroke-width:5;stroke-linecap:round}
+#ring{stroke:var(--accent);stroke-dasharray:553;stroke-dashoffset:553;opacity:0;transition:stroke-dashoffset 1s linear,opacity 1s linear;filter:drop-shadow(0 0 6px var(--accent))}
+[data-mode="idle"] .catwrap{animation:bob 2.4s ease-in-out infinite}
+[data-mode="focus"] .catwrap{animation:breathe 4s ease-in-out infinite}
+[data-mode="done"] .catwrap{animation:hop .7s ease-out 3}
+@keyframes bob{50%{transform:translateY(-3px)}}
+@keyframes breathe{50%{transform:scale(1.03) translateY(-1px)}}
+@keyframes hop{0%,100%{transform:translateY(0)}35%{transform:translateY(-28px)}}
+.spark{position:absolute;left:50%;top:40%;width:7px;height:7px;background:var(--accent);animation:pop 1.3s forwards}
+@keyframes pop{to{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
+.time{font-size:64px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.cname{color:var(--muted);margin:6px 0 12px}
+.chips,.btns{display:flex;gap:8px;justify-content:center;margin-bottom:10px;flex-wrap:wrap}
+.chip{background:var(--field);border:1px solid var(--edge);border-radius:999px;padding:5px 14px;font-size:13px}
+.chip.on{background:var(--accent);color:#2b2d42;border-color:transparent}.chip:disabled{opacity:.5;cursor:default}
+.primary{background:var(--accent);color:#2b2d42;border:0;border-radius:14px;padding:11px 26px;font-weight:700}
+.btns .ghost{border-radius:14px;padding:11px 18px}
+.dock{display:flex;gap:8px;align-items:stretch;background:var(--glass);border:1px solid var(--edge);border-radius:20px;padding:8px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.clist{display:flex;gap:8px;flex:1;overflow-x:auto;scroll-snap-type:x proximity}
+.card{flex:0 0 150px;scroll-snap-align:start;text-align:left;background:var(--field);border:1px solid transparent;border-radius:14px;padding:9px 11px}
+.card.sel{border-color:var(--c);box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 30%,transparent)}
+.card b{display:flex;align-items:center;gap:7px;font-size:14px}.dot{width:10px;height:10px;border-radius:3px;background:var(--c);flex:none}
+.card small{color:var(--muted);display:block;margin-top:3px;font-size:12px}
+.bar{height:4px;border-radius:2px;background:var(--field);margin-top:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--c)}
+.tag{white-space:nowrap;margin-left:auto;font-size:11px;background:var(--c);color:#2b2d42;border-radius:8px;padding:1px 6px}
+.dock>.ghost{border-radius:14px;padding:0 14px}
+.sheet{position:fixed;top:0;right:0;bottom:0;width:340px;max-width:100%;background:var(--sheet);border-left:1px solid var(--edge);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:16px;overflow:auto;z-index:15;transform:translateX(105%);transition:transform .25s ease}
+.sheet.open{transform:none}
+@media(max-width:700px){.sheet{top:auto;left:0;width:100%;max-height:78vh;border-left:0;border-top:1px solid var(--edge);border-radius:20px 20px 0 0;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateY(105%)}.sheet.open{transform:none}}
+.sheet h2{font-size:15px;margin:0 0 10px}
+.row{display:block;font-size:13px;margin-bottom:10px;color:var(--muted)}
+input,textarea{width:100%;background:var(--field);color:var(--ink);border:1px solid var(--edge);border-radius:10px;padding:7px 9px;font:inherit;font-size:13px;margin-top:4px}
+textarea{height:84px;resize:vertical}
+.danger{color:#c0392b}
+ul{list-style:none;margin:0;padding:0;font-size:13px}li{padding:6px 0;border-bottom:1px solid var(--edge)}li span{color:var(--muted);float:right}
+.tour{position:fixed;inset:0;background:rgba(20,18,40,.5);z-index:20;display:flex;align-items:flex-start;justify-content:center;padding:16px}
+.tour.center{align-items:center}.tour[hidden]{display:none}
+.tcard{background:var(--sheet);border:1px solid var(--edge);border-radius:20px;padding:18px;max-width:380px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.tcard h3{margin:2px 0 6px;font-size:18px}.tcard p{margin:0 0 14px;font-size:14px;line-height:1.5}.tcard small{color:var(--muted)}
+.tbtn{display:flex;justify-content:space-between;align-items:center}
+.tdots{display:flex;gap:6px}.tdots i{width:7px;height:7px;border-radius:50%;background:var(--edge)}.tdots i.on{background:var(--accent)}
+.hl{position:relative;z-index:21;box-shadow:0 0 0 4px var(--accent);border-radius:16px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="app">
+ <header class="top">
+  <div class="brand"><b>Desk Drawer</b><span>Study companion concept</span></div>
+  <div class="acts"><button class="ghost" id="hist">History</button><button class="ghost" id="guide">Guide</button><button class="ghost" id="theme">Theme</button></div>
+ </header>
+ <section class="stage" id="stage" data-mode="idle">
+  <div class="bubble" id="bubble" aria-live="polite"></div>
+  <div class="scene"><div class="tilt" id="tilt">
+   <svg class="plat" viewBox="0 0 240 140" aria-hidden="true"><polygon points="10,65 120,120 120,140 10,85" fill="var(--p2)"/><polygon points="230,65 120,120 120,140 230,85" fill="var(--p3)"/><polygon points="120,10 230,65 120,120 10,65" fill="var(--p1)"/></svg>
+   <div class="catwrap"><svg class="halo" viewBox="0 0 200 200" aria-hidden="true"><circle id="ring" cx="100" cy="100" r="88"/></svg><div id="cat" aria-hidden="true"></div></div>
+  </div></div>
+  <div class="time" id="time" role="timer">25:00</div>
+  <div class="cname" id="cname"></div>
+  <div class="chips" id="chips"></div>
+  <div class="btns"><button class="primary" id="go">Start session</button><button class="ghost" id="stop">End</button></div>
+ </section>
+ <nav class="dock" id="dock" aria-label="Courses"><div class="clist" id="clist"></div><button class="ghost" id="addc" aria-label="Add course">+</button><button class="ghost" id="edit">Edit</button></nav>
+</main>
+<aside class="sheet" id="sheet" aria-hidden="true" inert>
+ <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h2 style="margin:0">Course</h2><button class="ghost" id="close">Close</button></div>
+ <div id="detail"></div>
+ <h2 style="margin-top:18px">Recent sessions</h2><ul id="log"></ul>
+</aside>
+<div class="tour" id="tour" hidden><div class="tcard"><small id="tstep"></small><h3 id="tt"></h3><p id="tp"></p><div class="tbtn"><button class="ghost" id="tskip">Skip</button><div class="tdots" id="tdots"></div><button class="primary" id="tnext" style="padding:9px 20px">Next</button></div></div></div>
+<script>
+const $=s=>document.querySelector(s);
+const courses=[
+ {n:"Algorithms",c:"#e58a9b",m:380,d:0,f:"D:\\Uni\\Algorithms",l:["LMS: Week 6 slides","GitHub: algo-labs","Past papers (Drive)"],note:"Dijkstra vs Bellman–Ford: when do negative edges matter?"},
+ {n:"Databases",c:"#5fb3a8",m:210,d:2,f:"D:\\Uni\\Databases",l:["LMS: SQL lab 4","Postgres docs","ER diagram template"],note:"Normalisation: 3NF vs BCNF examples."},
+ {n:"Networks",c:"#e2b25c",m:45,d:5,f:"D:\\Uni\\Networks",l:["LMS: Subnetting sheet","Packet Tracer files","Wireshark notes"],note:"Redo the CIDR practice set."}
+];
+const KEY="dd-concept-2",TOUR="dd-tour-2";let logs=[];
+function save(){try{localStorage.setItem(KEY,JSON.stringify({courses,log:logs}))}catch(e){}}
+try{const d=JSON.parse(localStorage.getItem(KEY)||"null");if(d&&Array.isArray(d.courses)&&d.courses.length){courses.length=0;d.courses.forEach(c=>courses.push(c));logs=Array.isArray(d.log)?d.log:[]}}catch(e){}
+const MAP=[".KK..........KK.",".KPK........KPK.",".KPPKKKKKKKKPPK.",".KKKKKKKKKKKKKK.","KKKKKKKKKKKKKKKK","KKKYYKKKKKKYYKKK","KKKYKKKKKKKKYKKK","KKKKKKKPPKKKKKKK","KKKKKKKKKKKKKKKK",".KKKKKKKKKKKKKK.","..KKKKKKKKKKKK..","..KKkkkkkkkkKK..","..KKkkkkkkkkKK..","..KKkkkkkkkkKK..","..KKKK.KK.KKKK..","..KKKK....KKKK.."];
+const COL={K:"#1d1f2e",k:"#2c2f46",P:"#e8909f",Y:"#f4d85a",y:"#b8a14a"};
+function drawCat(closed){
+ const r=MAP.slice();
+ if(closed){r[5]=r[5].replace(/Y/g,"K");r[6]="KKKyyKKKKKKyyKKK"}
+ let s="";
+ r.forEach((row,y)=>[...row].forEach((ch,x)=>{if(COL[ch])s+=`<rect x="${x}" y="${y}" width="1" height="1" fill="${COL[ch]}"/>`}));
+ $("#cat").innerHTML=`<svg viewBox="0 0 16 16" width="128" height="128" shape-rendering="crispEdges">${s}</svg>`;
+}
+const S={i:0,total:1500,left:1500,run:false,pause:false,t:null,demo:false,end:0};
+const stage=$("#stage"),ring=$("#ring");
+const fmt=s=>String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
+const hm=m=>Math.floor(m/60)+"h "+String(m%60).padStart(2,"0")+"m";
+function esc(s){return String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]))}
+function ago(t){const m=Math.round((Date.now()-t)/60000);return m<1?"just now":m<60?m+" min ago":Math.round(m/60)+" h ago"}
+function mode(m){stage.dataset.mode=m;drawCat(m==="focus")}
+function say(t){$("#bubble").textContent=t}
+function idleLine(){const w=courses.filter(c=>c.d>=4).sort((a,b)=>b.d-a.d)[0];say(w?`It’s been ${w.d} days since ${w.n}.`:"Ready when you are.")}
+function renderCourses(){
+ const max=Math.max(1,...courses.map(c=>c.m));
+ $("#clist").innerHTML=courses.map((c,i)=>`<button class="card ${i===S.i?"sel":""}" style="--c:${c.c}" data-i="${i}"><b><span class="dot"></span>${esc(c.n)}${c.d>=4?`<span class="tag">${c.d} days</span>`:""}</b><small>${hm(c.m)} this week</small><div class="bar"><i style="width:${c.m/max*100}%"></i></div></button>`).join("");
+ document.documentElement.style.setProperty("--accent",courses[S.i].c);
+ $("#cname").textContent=courses[S.i].n;
+}
+function renderLog(){$("#log").innerHTML=logs.length?logs.map(l=>`<li><b style="color:${l.c}">${esc(l.n)}</b> ${l.t}<span>${ago(l.at)}</span></li>`).join(""):"<li>No sessions yet</li>"}
+function renderDetail(){
+ const c=courses[S.i];
+ $("#detail").innerHTML=`<label class="row">Name<input id="en" value="${esc(c.n)}" maxlength="30"></label><label class="row">Folder<input id="ef" value="${esc(c.f)}"></label><label class="row">Links, one per line<textarea id="el">${esc(c.l.join("\n"))}</textarea></label><label class="row">Notes<textarea id="notes">${esc(c.note)}</textarea></label><button class="ghost danger" id="del" style="border-radius:12px;width:100%" ${courses.length<2?"disabled":""}>Delete course</button>`;
+ const upd=()=>{c.n=$("#en").value.trim()||"Untitled";c.f=$("#ef").value;c.l=$("#el").value.split("\n").map(x=>x.trim()).filter(Boolean);c.note=$("#notes").value;renderCourses();save()};
+ ["#en","#ef","#el","#notes"].forEach(s=>{$(s).oninput=upd});
+ $("#del").onclick=()=>{if(S.run||courses.length<2)return;courses.splice(S.i,1);S.i=0;renderCourses();renderDetail();save()};
+}
+function renderChips(){
+ const o=[["25 min",1500,0],["50 min",3000,0],["Demo 15s",15,1]];
+ $("#chips").innerHTML=o.map(([l,s,d])=>`<button class="chip ${S.total===s?"on":""}" data-s="${s}" data-d="${d}" ${S.run?"disabled":""}>${l}</button>`).join("");
+}
+function ringUpdate(){
+ ring.style.strokeDashoffset=553*(1-S.left/S.total);
+ ring.style.opacity=.25+.75*S.left/S.total;
+ $("#time").textContent=fmt(S.left);
+ document.title=S.run?fmt(S.left)+" · "+courses[S.i].n:"Desk Drawer – concept";
+}
+function start(){
+ const c=courses[S.i];
+ S.run=true;S.pause=false;S.left=S.total;
+ mode("focus");renderChips();$("#go").textContent="Pause";
+ say(c.f||c.l.length?`Opened ${c.f||"no folder"} and ${c.l.length} link${c.l.length===1?"":"s"} (simulated). Focus.`:"Focus.");
+ ring.style.transition="none";ring.style.strokeDashoffset=0;ring.style.opacity=1;
+ requestAnimationFrame(()=>{ring.style.transition="";});
+ S.end=Date.now()+S.total*1000;
+ S.t=setInterval(()=>{if(S.pause)return;S.left=Math.max(0,Math.ceil((S.end-Date.now())/1000));ringUpdate();if(S.left<=0)finish(true)},500);
+ ringUpdate();
+}
+function finish(full){
+ clearInterval(S.t);
+ const c=courses[S.i],el=S.total-S.left;
+ const mins=S.demo?0:Math.round(el/60);
+ S.run=false;$("#go").textContent="Start session";renderChips();
+ ring.style.opacity=0;
+ if(el<5){mode("idle");S.left=S.total;ringUpdate();idleLine();return}
+ c.m+=mins;c.d=0;renderCourses();
+ logs.unshift({n:c.n,c:c.c,t:S.demo?"demo":mins+" min",at:Date.now()});logs=logs.slice(0,6);renderLog();save();
+ mode("done");say(full?`Nice work: ${S.demo?"a quick demo":mins+" min"} on ${c.n}.`:`Stopped early. ${mins} min logged.`);
+ for(let i=0;i<12;i++){const p=document.createElement("span");p.className="spark";const a=i/12*6.28;p.style.setProperty("--dx",Math.cos(a)*90+"px");p.style.setProperty("--dy",Math.sin(a)*70+"px");$(".catwrap").appendChild(p);setTimeout(()=>p.remove(),1400)}
+ setTimeout(()=>{if(!S.run){mode("idle");S.left=S.total;ringUpdate();idleLine()}},4000);
+}
+function sheet(open){const s=$("#sheet");s.classList.toggle("open",open);s.setAttribute("aria-hidden",!open);s.toggleAttribute("inert",!open)}
+$("#clist").onclick=e=>{const b=e.target.closest(".card");if(!b||S.run)return;S.i=+b.dataset.i;renderCourses();renderDetail()};
+$("#chips").onclick=e=>{const b=e.target.closest(".chip");if(!b||S.run)return;S.total=S.left=+b.dataset.s;S.demo=b.dataset.d==="1";renderChips();ringUpdate()};
+$("#go").onclick=()=>{if(!S.run)return start();S.pause=!S.pause;if(!S.pause)S.end=Date.now()+S.left*1000;$("#go").textContent=S.pause?"Resume":"Pause";say(S.pause?"Paused.":"Back to it.")};
+$("#stop").onclick=()=>{if(S.run)finish(false)};
+$("#edit").onclick=()=>{renderDetail();sheet(true)};
+$("#hist").onclick=()=>{renderDetail();sheet(true);$("#log").scrollIntoView({block:"nearest"})};
+$("#close").onclick=()=>sheet(false);
+document.addEventListener("keydown",e=>{if(e.key==="Escape")sheet(false)});
+$("#addc").onclick=()=>{if(S.run)return;const pal=["#e58a9b","#5fb3a8","#e2b25c","#8aa4e6","#b58ad8"];courses.push({n:"New course",c:pal[courses.length%pal.length],m:0,d:0,f:"",l:[],note:""});S.i=courses.length-1;renderCourses();renderDetail();save();sheet(true)};
+$("#theme").onclick=()=>{const r=document.documentElement,cur=r.dataset.theme||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");r.dataset.theme=cur==="dark"?"light":"dark"};
+stage.addEventListener("pointermove",e=>{const b=stage.getBoundingClientRect();$("#tilt").style.setProperty("--rx",((e.clientX-b.left)/b.width-.5)*10+"deg");$("#tilt").style.setProperty("--ry",(.5-(e.clientY-b.top)/b.height)*6+"deg")});
+stage.addEventListener("pointerleave",()=>{$("#tilt").style.setProperty("--rx","0deg");$("#tilt").style.setProperty("--ry","0deg")});
+setInterval(()=>{if(stage.dataset.mode==="idle"){drawCat(true);setTimeout(()=>{if(stage.dataset.mode==="idle")drawCat(false)},140)}},3600);
+const STEPS=[
+ ["","Welcome to Desk Drawer","A study companion that knows your courses. Your cat keeps you company while you focus. This takes 30 seconds.",""],
+ ["Step 1 of 4","Pick a course","Each card is a course with its own folder, links and notes. Tap one to select it, or use + to add your own.","#dock"],
+ ["Step 2 of 4","Choose a length","Pick 25 or 50 minutes. Demo 15s shows the whole loop quickly.","#chips"],
+ ["Step 3 of 4","Start a session","One click opens the course’s folder and links in the real app, starts the timer and settles your cat in. The halo fades as time runs out.","#go"],
+ ["Step 4 of 4","Make it yours","Edit a course to set its folder, links and notes. Everything saves on this device. Reopen this guide any time from the top bar.","#edit"]
+];
+let ti=0,hl=null;
+function tour(i){
+ if(hl)hl.classList.remove("hl");
+ if(i>=STEPS.length){$("#tour").hidden=true;try{localStorage.setItem(TOUR,"1")}catch(e){}return}
+ ti=i;const s=STEPS[i];
+ $("#tour").hidden=false;$("#tour").classList.toggle("center",!s[3]);
+ $("#tstep").textContent=s[0];$("#tt").textContent=s[1];$("#tp").textContent=s[2];
+ $("#tdots").innerHTML=STEPS.map((_,k)=>`<i class="${k===i?"on":""}"></i>`).join("");
+ $("#tnext").textContent=i===STEPS.length-1?"Done":i===0?"Show me":"Next";
+ hl=s[3]?$(s[3]):null;if(hl)hl.classList.add("hl");
+}
+$("#tnext").onclick=()=>tour(ti+1);
+$("#tskip").onclick=()=>tour(STEPS.length);
+$("#guide").onclick=()=>{sheet(false);tour(0)};
+drawCat(false);renderCourses();renderDetail();renderLog();renderChips();ringUpdate();idleLine();
+let seen=false;try{seen=localStorage.getItem(TOUR)==="1"}catch(e){}
+if(!seen)tour(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "id": "pin-window",
+  "name": "Pin Window",
+  "icon": "P",
+  "description": "Keep Desk Drawer above other windows until you unpin it.",
+  "version": "1.0.0",
+  "defaultEnabled": false,
+  "panelId": "p-pin"
+}

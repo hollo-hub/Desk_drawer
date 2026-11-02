@@ -1,0 +1,9 @@
+{
+  "id": "notes",
+  "name": "Scratch Notes",
+  "icon": "N",
+  "description": "Keep a small private note on this device.",
+  "version": "1.0.0",
+  "defaultEnabled": false,
+  "panelId": "p-notes"
+}

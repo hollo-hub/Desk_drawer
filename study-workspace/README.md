@@ -280,8 +280,10 @@ The v2 app was checked with:
 - Fourteen headless visual and interaction scenarios: passing with no browser
   page errors, including all four skins in light and dark themes.
 - Rust formatting check: passing.
-- Rust tests and the Windows NSIS package are not yet verified. They require
-  MSVC; the local Build Tools setup could not download its compiler packages.
+- Rust tests: 26 passing.
+- Standalone Windows executable: built successfully with Tauri's `--no-bundle`
+  option.
+- Windows NSIS installer: not built because NSIS is unavailable locally.
 
 ## Release and source layout
 

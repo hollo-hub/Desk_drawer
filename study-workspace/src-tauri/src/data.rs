@@ -888,7 +888,7 @@ mod tests {
     fn saved_v2_fixture_loads_and_round_trips_without_losing_data() {
         let contents = include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/tests/fixtures/desk-drawer-v2.json"
+            "/../tests/fixtures/desk-drawer-v2.json"
         ));
         let before: serde_json::Value = serde_json::from_str(contents).unwrap();
         let decoded = parse_data(contents.as_bytes(), Path::new("desk-drawer-v2.json")).unwrap();

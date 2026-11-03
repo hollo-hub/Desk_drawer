@@ -261,47 +261,6 @@ pub fn run() {
                     if let Err(error) = app.emit("tray-action", action) {
                         eprintln!("Could not send tray action to Desk Drawer: {error}");
                     }
-
-                    #[cfg(test)]
-                    mod tests {
-                        use super::resolve_study_source;
-                        use serde_json::json;
-
-                        #[test]
-                        fn study_launcher_requires_an_exact_saved_course_source_and_chapter() {
-                            let study = json!({
-                                "courses": {
-                                    "course-1": {
-                                        "sources": [{
-                                            "id": "source-1",
-                                            "kind": "link",
-                                            "target": "https://example.com/lecture",
-                                            "chapters": [
-                                                { "id": "chapter-1" },
-                                                { "id": "chapter-2", "target": "https://example.com/section" }
-                                            ]
-                                        }]
-                                    }
-                                }
-                            });
-
-                            assert_eq!(
-                                resolve_study_source(&study, "course-1", "source-1", None).unwrap(),
-                                ("link".to_string(), "https://example.com/lecture".to_string())
-                            );
-                            assert_eq!(
-                                resolve_study_source(&study, "course-1", "source-1", Some("chapter-1")).unwrap(),
-                                ("link".to_string(), "https://example.com/lecture".to_string())
-                            );
-                            assert_eq!(
-                                resolve_study_source(&study, "course-1", "source-1", Some("chapter-2")).unwrap(),
-                                ("link".to_string(), "https://example.com/section".to_string())
-                            );
-                            assert!(resolve_study_source(&study, "course-2", "source-1", None).is_err());
-                            assert!(resolve_study_source(&study, "course-1", "not-saved", None).is_err());
-                            assert!(resolve_study_source(&study, "course-1", "source-1", Some("not-saved")).is_err());
-                        }
-                    }
                 })
                 .on_tray_icon_event(|tray, event| {
                     if matches!(
@@ -349,4 +308,54 @@ pub fn run() {
         })
         .run(tauri::generate_context!())
         .expect("error while running Desk Drawer");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::resolve_study_source;
+    use serde_json::json;
+
+    #[test]
+    fn study_launcher_requires_an_exact_saved_course_source_and_chapter() {
+        let study = json!({
+            "courses": {
+                "course-1": {
+                    "sources": [{
+                        "id": "source-1",
+                        "kind": "link",
+                        "target": "https://example.com/lecture",
+                        "chapters": [
+                            { "id": "chapter-1" },
+                            { "id": "chapter-2", "target": "https://example.com/section" }
+                        ]
+                    }]
+                }
+            }
+        });
+
+        assert_eq!(
+            resolve_study_source(&study, "course-1", "source-1", None).unwrap(),
+            (
+                "link".to_string(),
+                "https://example.com/lecture".to_string()
+            )
+        );
+        assert_eq!(
+            resolve_study_source(&study, "course-1", "source-1", Some("chapter-1")).unwrap(),
+            (
+                "link".to_string(),
+                "https://example.com/lecture".to_string()
+            )
+        );
+        assert_eq!(
+            resolve_study_source(&study, "course-1", "source-1", Some("chapter-2")).unwrap(),
+            (
+                "link".to_string(),
+                "https://example.com/section".to_string()
+            )
+        );
+        assert!(resolve_study_source(&study, "course-2", "source-1", None).is_err());
+        assert!(resolve_study_source(&study, "course-1", "not-saved", None).is_err());
+        assert!(resolve_study_source(&study, "course-1", "source-1", Some("not-saved")).is_err());
+    }
 }

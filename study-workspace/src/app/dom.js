@@ -6,7 +6,7 @@ export const appPages = [...document.querySelectorAll(".app-page")];
 
 export const courseTitle = document.querySelector("#course-title");
 
-export const catBubble = document.querySelector("#cat-bubble");
+export const buddyBubble = document.querySelector("#buddy-bubble");
 
 export const buddyArt = document.querySelector("#buddy-art");
 

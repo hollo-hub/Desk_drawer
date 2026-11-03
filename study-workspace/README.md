@@ -42,10 +42,11 @@ not like a generic AI productivity dashboard.
 
 ### Desk Buddy
 
-- Replaced the previous cat placeholder with an original pixel ghost buddy.
-- The buddy uses crisp nearest-neighbor rendering and a generated 16x16 SVG
-  sprite in [`src/buddy/ghost-sprite.js`](./src/buddy/ghost-sprite.js).
-- Supported states:
+- The buddy is rendered from a sprite pack. The default ghost pack is in
+  [`src/buddy/packs/ghost.js`](./src/buddy/packs/ghost.js); add future packs as
+  one file under `src/buddy/packs/`.
+- Each pack supplies its own palette, high-contrast stage backdrop, and frames
+  for all six states:
   - `idle`: open eyes, gentle bob, alternating hem frame, and occasional blink
   - `blink`: brief closed-eye frame
   - `focus`: focused expression and calm breathing during a session
@@ -58,8 +59,8 @@ not like a generic AI productivity dashboard.
 - The speech bubble bounces briefly when its message changes.
 - The bubble is a polite live region; the sprite itself is decorative and
   `aria-hidden`.
-- The buddy uses lavender by default, with mint, coral, and sunny coat
-  variants where a course color maps to them.
+- Buddy colors are independent of the selected course accent.
+- Legacy skin data using the `ghost` field is normalized to `buddy` when read.
 - Reduced-motion preferences disable bobbing, blinking, hem-frame movement,
   hops, and bubble motion while preserving the state and message.
 - The decorative cube platform was removed. The buddy now stands alone with a
@@ -243,7 +244,7 @@ The full creative handoff is in
 | `index.html` | Semantic application shell and page structure |
 | `src/main.js` | UI state, navigation, rendering, timer, persistence calls, guide, buddy behavior |
 | `src/style.css` | Layout, themes, retro-ready tokens, motion, responsive states, accessibility |
-| `src/buddy/ghost-sprite.js` | Pure pixel ghost SVG generator |
+| `src/buddy/pack-model.js`, `src/buddy/registry.js`, `src/buddy/packs/` | Buddy pack schema, discovery, and sprites |
 | `src/course-model.js` | Course validation and course operations |
 | `src/note-model.js` | Note creation, migration, update, and search |
 | `src/resource-model.js` | Resource groups and assignments |

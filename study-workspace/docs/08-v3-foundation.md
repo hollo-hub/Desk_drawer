@@ -25,9 +25,9 @@ Phase 0 of the v3 plan: make the app safe to build on. Nothing here changes what
 | `app/session.js` | Timer, sessions, pause, end, summary |
 | `app/notes.js`, `tasks.js`, `history.js`, `stats.js` | One page each |
 | `app/resources.js` | Folders, files, links, resource groups |
-| `app/course-sheet.js` | The add/edit course drawer |
+| `app/course-sheet.js`, `app/dialog.js` | Add/edit course form and shared modal behavior |
 | `app/settings.js`, `guide.js`, `downloads.js` | Settings, onboarding tour, Downloads filing |
-| `app/buddy.js` | The ghost's states and messages |
+| `app/buddy.js`, `buddy/pack-model.js`, `buddy/registry.js`, `buddy/packs/` | Buddy states, messages, and sprite packs |
 | `app/persistence.js` | Debounced saving and save status |
 | `study/` | The v3 study engine |
 

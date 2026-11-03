@@ -1,8 +1,7 @@
 import { appState } from "./state.js";
 import { daysSinceLastStudy } from "../course-model.js";
-import { sprite } from "../buddy/ghost-sprite.js";
-import { buddyArt, catBubble, guideCard, reducedMotionPreference } from "./dom.js";
-import { findCourse } from "./workspace.js";
+import { buddyPackRegistry } from "../buddy/registry.js";
+import { buddyArt, buddyBubble, guideCard, reducedMotionPreference } from "./dom.js";
 
 export const buddyIdleMessages = [
   "Ready when you are.",
@@ -22,7 +21,7 @@ export function updateReducedMotionPreference() {
   stage.dataset.reducedMotion = String(reducedMotionPreference.matches);
   if (reducedMotionPreference.matches) {
     if (appState.currentBuddyState === "blink") {
-      setCatState("idle");
+      setBuddyState("idle");
     } else {
       window.clearTimeout(appState.buddyBlinkTimer);
       window.clearTimeout(appState.buddyBlinkResetTimer);
@@ -34,9 +33,9 @@ export function updateReducedMotionPreference() {
   }
 }
 
-export function setCatState(state) {
+export function setBuddyState(state) {
   appState.currentBuddyState = state;
-  document.querySelector(".stage").dataset.catState = state;
+  document.querySelector(".stage").dataset.buddyState = state;
   appState.buddyFrame = 0;
   renderBuddySprite();
   window.clearTimeout(appState.buddyBlinkTimer);
@@ -44,16 +43,13 @@ export function setCatState(state) {
   if (state === "idle") scheduleBuddyBlink();
 }
 
-export function buddyCoat() {
-  const color = findCourse(appState.selectedCourseId)?.color?.toLowerCase();
-  if (color === "#5fb3a8") return "mint";
-  if (color === "#dc8299") return "coral";
-  if (color === "#e2b25c") return "sunny";
-  return "lavender";
-}
-
 export function renderBuddySprite() {
-  buddyArt.innerHTML = sprite(appState.currentBuddyState, appState.buddyFrame, buddyCoat());
+  const pack = buddyPackRegistry.defaultPack;
+  const frames = pack.frames[appState.currentBuddyState];
+  if (!frames) throw new Error(`Buddy pack "${pack.id}" has no "${appState.currentBuddyState}" frames.`);
+  buddyArt.style.setProperty("--buddy-rim", pack.palette.rim);
+  buddyArt.style.setProperty("--buddy-backdrop", pack.palette.backdrop);
+  buddyArt.innerHTML = frames[appState.buddyFrame % frames.length];
 }
 
 export function initializeBuddy() {
@@ -80,8 +76,8 @@ export function scheduleBuddyBlink() {
   if (reducedMotionPreference.matches || !buddyArt) return;
   appState.buddyBlinkTimer = window.setTimeout(() => {
     if (appState.currentBuddyState !== "idle") return;
-    setCatState("blink");
-    appState.buddyBlinkResetTimer = window.setTimeout(() => setCatState("idle"), 140);
+    setBuddyState("blink");
+    appState.buddyBlinkResetTimer = window.setTimeout(() => setBuddyState("idle"), 140);
   }, 3600);
 }
 
@@ -104,7 +100,7 @@ export function showRandomBuddyLine() {
     }
   }
   appState.lastIdleMessage = appState.idleMessageBag.pop();
-  catBubble.textContent = appState.lastIdleMessage;
+  buddyBubble.textContent = appState.lastIdleMessage;
 }
 
 export function showCourseNudge() {
@@ -114,6 +110,6 @@ export function showCourseNudge() {
     .find(({ days }) => days !== null && days >= 4);
   if (!neglected) return;
   appState.nudgeShown = true;
-  catBubble.textContent = `It's been ${neglected.days} days since ${neglected.course.name}.`;
-  setCatState("nudge");
+  buddyBubble.textContent = `It's been ${neglected.days} days since ${neglected.course.name}.`;
+  setBuddyState("nudge");
 }

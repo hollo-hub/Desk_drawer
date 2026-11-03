@@ -23,6 +23,7 @@ import {
   updateReviewQuestion,
 } from "../study/study-data-model.js";
 import { persistNow, scheduleSave, setSaveStatus } from "./persistence.js";
+import { createDialogController } from "./dialog.js";
 
 const byId = (id) => document.getElementById(id);
 const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({
@@ -46,6 +47,19 @@ const sourceMessage = byId("study-source-message");
 const recallDialog = byId("recall-dialog");
 const paletteDialog = byId("command-palette");
 let recallTimer = null;
+const recallDialogController = createDialogController({
+  dialog: recallDialog,
+  closeButton: byId("close-recall"),
+  initialFocus: () => byId("recall-open-source"),
+  fallbackFocus: () => byId("open-command-palette"),
+  onClose: resetRecallState,
+});
+const paletteDialogController = createDialogController({
+  dialog: paletteDialog,
+  closeButton: byId("close-command-palette"),
+  initialFocus: () => paletteDialog.querySelector("[data-command=source]"),
+  fallbackFocus: () => byId("open-command-palette"),
+});
 
 function selectedStudyCourse() {
   return findCourse(appState.selectedCourseId) ?? null;
@@ -224,24 +238,19 @@ export function initializeStudyHub() {
   });
   byId("study-add-course").addEventListener("click", () => byId("add-course").click());
   byId("open-command-palette").addEventListener("click", openPalette);
-  byId("close-command-palette").addEventListener("click", () => paletteDialog.close());
-  paletteDialog.addEventListener("click", (event) => {
-    if (event.target === paletteDialog) paletteDialog.close();
-  });
   paletteDialog.querySelector(".command-list").addEventListener("click", (event) => {
     const button = event.target.closest("[data-command]");
     if (!button) return;
-    paletteDialog.close();
+    paletteDialogController.close();
     const commands = { source: "add-source", task: "add-task", recall: "start-recall", hub: "open-hub" };
     runStudyAction(commands[button.dataset.command]);
   });
   document.addEventListener("keydown", (event) => {
     if ((event.ctrlKey || event.metaKey) && event.key.toLocaleLowerCase() === "k") {
       event.preventDefault();
-      if (paletteDialog.open) paletteDialog.close();
+      if (paletteDialog.open) paletteDialogController.close();
       else openPalette();
     }
-    if (event.key === "Escape" && recallDialog.open) closeRecall();
   });
 
   byId("recall-begin").addEventListener("click", () => {
@@ -277,19 +286,10 @@ export function initializeStudyHub() {
     const button = event.target.closest("[data-recall-rating]");
     if (button) finishRecall(button.dataset.recallRating);
   });
-  byId("close-recall").addEventListener("click", closeRecall);
-  recallDialog.addEventListener("cancel", (event) => {
-    event.preventDefault();
-    closeRecall();
-  });
-  recallDialog.addEventListener("click", (event) => {
-    if (event.target === recallDialog) closeRecall();
-  });
 }
 
 function openPalette() {
-  if (!paletteDialog.open) paletteDialog.showModal();
-  paletteDialog.querySelector("[data-command=source]").focus();
+  paletteDialogController.open();
 }
 
 export function renderStudyHub() {
@@ -635,8 +635,7 @@ function showRecallDialog(source, chapter, question) {
   byId("recall-writing-stage").hidden = true;
   byId("recall-read-stage").hidden = false;
   setRecallMessage("");
-  recallDialog.showModal();
-  byId("recall-open-source").focus();
+  recallDialogController.open();
 }
 
 function recallRevealText(recall) {
@@ -736,9 +735,13 @@ function finishRecall(rating) {
 }
 
 function closeRecall() {
+  resetRecallState();
+  recallDialogController.close();
+}
+
+function resetRecallState() {
   window.clearInterval(recallTimer);
   recallTimer = null;
   appState.activeRecall = null;
-  if (recallDialog.open) recallDialog.close();
   setRecallMessage("");
 }

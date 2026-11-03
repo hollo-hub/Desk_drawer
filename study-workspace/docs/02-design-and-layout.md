@@ -1,16 +1,16 @@
 # Design and layout
 
 ## Layout: stage and dock
-The Desk Buddy ghost is the centre of the Desk page. Courses live in a dock at the bottom. Desk, Notes, and Tasks are separate, lightweight pages connected by the selected course. Editing slides over from the right (bottom sheet on phones).
+The Desk Buddy is the centre of the Desk page. Courses live in a dock at the bottom. Desk, Notes, and Tasks are separate, lightweight pages connected by the selected course. Course editing opens in a centered modal dialog on every window size.
 
 ```
 +--------------------------------------------------+
 | Desk Drawer       Desk   Resources   Notes   Tasks |
 |                                                  |
-|         [ ghost buddy says something ]           |
+|         [ buddy says something ]                 |
 |                                                  |
 |                 ( halo )                         |
-|                ( pixel ghost )                   |
+|                ( pixel sprite )                  |
 |                                                  |
 |                   24:31                          |
 |                  Algorithms                      |
@@ -19,18 +19,18 @@ The Desk Buddy ghost is the centre of the Desk page. Courses live in a dock at t
 |                                                  |
 | [Algorithms][Databases][Networks 5 days]  +  Edit |
 +--------------------------------------------------+
-        slide-over: course resources and settings
+        centered modal: course editing and settings
 ```
 
 ## Components
 - **Bubble:** one short sentence in the buddy’s voice, polite live region; idle lines rotate without repeating until the set is exhausted, and the bubble bounces when its message changes.
-- **Stage:** animated ghost, halo, big timer, course name, length chips, Start/Pause and End.
+- **Stage:** animated buddy, halo, big timer, course name, length chips, Start/Pause and End.
 - **Dock:** horizontally scrollable course cards (name, week time, bar, “N days” tag when untouched 4+ days), add, edit.
 - **Notes page:** a course notebook with searchable titled notes, a Markdown insertion toolbar, silent autosave with explicit error feedback, and character count.
 - **Tasks page:** quick-add course tasks with one-action completion; the first unfinished task appears as a shortcut on the Desk.
 - **Resources page:** course-scoped folders, links, and files grouped by the user; add and open resources in place with no implicit copying or moving.
 - **History page:** reverse-chronological sessions with course, date, duration, completion state, and optional reflection.
-- **Course sheet:** course identity, folder picker, web links, and file/app picker; selected resources stay at their original paths and open with registered desktop apps.
+- **Course dialog:** centered, closable add/edit form with a dimmed backdrop, focus handling, and in-dialog scrolling; selected resources stay at their original paths and open with registered desktop apps.
 - **First-run tour:** one-time dimmed overlay with a movable card and live spotlight. Targets stay clickable so the guide teaches the real controls; Skip ends the tour permanently.
 
 ## Buddy states
@@ -51,7 +51,7 @@ Appears at session start as a full ring in the course colour. For countdowns, th
 - Type: system rounded stack, 64px timer, 14px body, 12px minimum.
 - Shape: 20px panels, 14px controls, pill chips.
 - Motion: gentle transitions answer interactions, plus the buddy’s own idle. Respect the operating system’s reduced-motion preference.
-- Look target: open, uncluttered stage with a soft palette and frosted panels; the ghost stays hard-edged pixel art for contrast.
+- Look target: open, uncluttered stage with a soft palette; each buddy pack supplies its own palette and contrasting stage backdrop.
 
 ## Accessibility
 Keyboard reachable everything with visible focus; timer announced with a timer role; buddy messages in a polite live region; colour never the only signal (selected card has a border, untouched courses have a text tag); the operating system’s reduced-motion preference disables animation; editable fields keep text selection; minimum 12px text; check contrast of muted text on glass.

@@ -25,7 +25,7 @@ Password or secret storage. Clipboard history. Window layouts. Colour picker, ke
 | P1-1 | Course add, edit, delete | Can create 3 courses, rename, delete; deleting the last course is blocked; data survives restart |
 | P1-2 | Launch | Choose a course folder and files/apps with native pickers. Start opens the folder, links, and selected files in their registered apps (including video players); a missing resource shows a clear message and the session still starts |
 | P1-3 | Timer | Starts with a 0-minute stopwatch; also supports 25, 50 and custom countdown lengths. Uses timestamps, stays correct when minimized, and supports pause/resume. |
-| P1-4 | Halo | Constant-opacity ring around the cat shortens with time left and is gone at zero |
+| P1-4 | Halo | Constant-opacity ring around the buddy shortens with time left and is gone at zero |
 | P1-5 | Cat states | idle (bob, blink), focus (calm, eyes closed), done (hop, sparkles), nudge (course untouched 4+ days) |
 | P1-6 | Session log | Completed and ended-early sessions saved; last 6 shown; weekly minutes per course |
 | P1-7 | First-run guide | One-time interactive spotlight tour from `03-onboarding-tutorial.md`; highlighted controls remain usable; Skip ends the tour |
@@ -43,7 +43,7 @@ Password or secret storage. Clipboard history. Window layouts. Colour picker, ke
 | P2-7 | Notifications and tray | Session end notification; tray icon with start, pause and quit; app keeps timing when the window is closed to tray |
 
 ## Phase 3 (only if used daily)
-Opt-in Notion/ChatGPT integrations with clear permissions and no stored passwords, Pomodoro breaks with the cat, exam countdown per course, exportable study log, cat cosmetics from total study time.
+Opt-in Notion/ChatGPT integrations with clear permissions and no stored passwords, Pomodoro breaks with the buddy, exam countdown per course, exportable study log, buddy cosmetics from total study time.
 
 ## Security and privacy rules
 - Validate every URL: only `http` and `https`. Never run a path as a command; open only user-defined folders, files and apps via the Tauri opener.

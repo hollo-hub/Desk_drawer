@@ -6,14 +6,39 @@ import { addCourseLinkResource, addResourceGroup, chooseLibraryFiles, chooseLibr
 import { addCourseTask, renderTaskList } from "./app/tasks.js";
 import { advanceGuide, closeGuide, positionGuideCard } from "./app/guide.js";
 import { applyAppearance, openSettings, playInterfaceSound, updateDashboardComponentSetting, updateNotificationsSetting, updateSoundEffectsSetting, updateThemeSetting } from "./app/settings.js";
-import { applyCustomLength, explainSessionLock, finishSession, saveSessionSummary, selectStopwatchMode, setSessionLength, startSelectedSession, toggleSessionPause } from "./app/session.js";
-import { applyCustomLengthButton, catBubble, colorSchemePreference, customMinutesInput, deleteButton, downloadFilingSelect, emptyAddCourseButton, endSessionButton, form, guideCard, nextTaskPreview, noteContentInput, noteCreateButton, noteDeleteButton, noteList, noteSearchInput, noteTitleInput, notesAddCourseButton, notesCourseSelect, pageNavButtons, pauseSessionButton, resourceGroupForm, resourceGroupList, resourceLinkForm, resourceList, resourcesAddCourseButton, resourcesCourseSelect, sessionSummaryDialog, sessionSummaryForm, settingsDialog, settingsGearButton, sheet, soundEffectsSetting, startSessionButton, taskForm, taskList, tasksAddCourseButton, tasksCourseSelect } from "./app/dom.js";
+import { applyCustomLength, explainSessionLock, finishSession, saveSessionSummary, selectStopwatchMode, sessionSummaryDialogController, setSessionLength, startSelectedSession, toggleSessionPause } from "./app/session.js";
+import { applyCustomLengthButton, buddyBubble, colorSchemePreference, customMinutesInput, deleteButton, downloadFilingSelect, emptyAddCourseButton, endSessionButton, form, guideCard, nextTaskPreview, noteContentInput, noteCreateButton, noteDeleteButton, noteList, noteSearchInput, noteTitleInput, notesAddCourseButton, notesCourseSelect, pageNavButtons, pauseSessionButton, resourceGroupForm, resourceGroupList, resourceLinkForm, resourceList, resourcesAddCourseButton, resourcesCourseSelect, sessionSummaryForm, settingsGearButton, soundEffectsSetting, startSessionButton, taskForm, taskList, tasksAddCourseButton, tasksCourseSelect } from "./app/dom.js";
 import { applyNoteFormatting, createSelectedCourseNote, deleteSelectedCourseNote, handleNoteListClick, renderNoteList, updateSelectedCourseNote } from "./app/notes.js";
-import { chooseCourseFiles, chooseCourseFolder, closeCourseSheet, deleteSelectedCourse, openCourseSheet, renderColorOptions, renderCourseFiles, updateCourseFromForm } from "./app/course-sheet.js";
+import { chooseCourseFiles, chooseCourseFolder, deleteSelectedCourse, openCourseSheet, renderColorOptions, renderCourseFiles, updateCourseFromForm } from "./app/course-sheet.js";
 import { dismissDownloadCandidate, moveSelectedDownload, undoSelectedDownload, updateDownloadFilingSetting } from "./app/downloads.js";
 import { findCourse, loadCourses, selectWorkspaceCourse, setActivePage } from "./app/workspace.js";
 import { scheduleSave } from "./app/persistence.js";
 import { initializeStudyHub } from "./app/study-hub.js";
+
+for (const page of document.querySelectorAll(".app-page")) {
+  page.addEventListener("keydown", (event) => {
+    if (event.target !== page || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+
+    const maxScrollTop = page.scrollHeight - page.clientHeight;
+    if (maxScrollTop <= 0) return;
+
+    const pageStep = Math.max(1, page.clientHeight * 0.9);
+    const currentScrollTop = page.scrollTop;
+    const nextScrollTop = {
+      ArrowDown: currentScrollTop + 40,
+      ArrowUp: currentScrollTop - 40,
+      PageDown: currentScrollTop + pageStep,
+      PageUp: currentScrollTop - pageStep,
+      " ": currentScrollTop + pageStep,
+      Home: 0,
+      End: maxScrollTop,
+    }[event.key];
+
+    if (nextScrollTop === undefined) return;
+    event.preventDefault();
+    page.scrollTop = Math.max(0, Math.min(maxScrollTop, nextScrollTop));
+  });
+}
 
 colorSchemePreference.addEventListener("change", () => {
   if (appState.appData?.settings.theme === "system") applyAppearance();
@@ -61,8 +86,6 @@ document.querySelector(".brand").addEventListener("click", (event) => {
 
 settingsGearButton.addEventListener("click", openSettings);
 
-document.querySelector("#close-settings").addEventListener("click", () => settingsDialog.close());
-
 document.querySelector("#guide-next").addEventListener("click", advanceGuide);
 
 document.querySelector("#guide-skip").addEventListener("click", closeGuide);
@@ -70,8 +93,6 @@ document.querySelector("#guide-skip").addEventListener("click", closeGuide);
 guideCard.addEventListener("keydown", (event) => {
   if (event.key === "Escape") closeGuide();
 });
-
-settingsDialog.addEventListener("close", () => settingsGearButton.setAttribute("aria-expanded", "false"));
 
 document.querySelector("#theme-setting").addEventListener("change", updateThemeSetting);
 
@@ -105,11 +126,11 @@ window.addEventListener("resize", positionGuideCard);
 window.addEventListener("scroll", positionGuideCard, true);
 
 new MutationObserver(() => {
-  if (catBubble.hidden) return;
-  catBubble.classList.remove("bubble-bounce");
-  void catBubble.offsetWidth;
-  catBubble.classList.add("bubble-bounce");
-}).observe(catBubble, { childList: true, characterData: true });
+  if (buddyBubble.hidden) return;
+  buddyBubble.classList.remove("bubble-bounce");
+  void buddyBubble.offsetWidth;
+  buddyBubble.classList.add("bubble-bounce");
+}).observe(buddyBubble, { childList: true, characterData: true });
 
 for (const button of pageNavButtons) {
   button.addEventListener("click", () => setActivePage(button.dataset.pageTarget));
@@ -138,7 +159,7 @@ document.querySelector(".note-toolbar").addEventListener("click", applyNoteForma
 sessionSummaryForm.addEventListener("submit", saveSessionSummary);
 
 document.querySelector("#skip-session-summary").addEventListener("click", () => {
-  if (sessionSummaryDialog.open) sessionSummaryDialog.close();
+  sessionSummaryDialogController.close();
 });
 
 taskForm.addEventListener("submit", addCourseTask);
@@ -192,8 +213,6 @@ customMinutesInput.addEventListener("keydown", (event) => {
   }
 });
 
-document.querySelector("#close-sheet").addEventListener("click", closeCourseSheet);
-
 document.querySelector("#browse-course-folder").addEventListener("click", chooseCourseFolder);
 
 document.querySelector("#browse-course-files").addEventListener("click", chooseCourseFiles);
@@ -208,15 +227,6 @@ document.querySelector("#course-file-list").addEventListener("click", (event) =>
   appState.editing.apps = appState.editing.apps.filter((path) => path !== button.dataset.removeFile);
   renderCourseFiles();
   updateCourseFromForm();
-});
-
-document.querySelector("#course-sheet").addEventListener("cancel", (event) => {
-  event.preventDefault();
-  closeCourseSheet();
-});
-
-document.querySelector("#course-sheet").addEventListener("click", (event) => {
-  if (event.target === sheet) closeCourseSheet();
 });
 
 form.addEventListener("input", updateCourseFromForm);

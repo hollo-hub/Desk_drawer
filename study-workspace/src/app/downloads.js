@@ -2,8 +2,8 @@ import { appState } from "./state.js";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { downloadFilingCard, downloadFilingSelect, downloadUndoCard, sessionSummaryDialog } from "./dom.js";
-import { finishSession, startSelectedSession, toggleSessionPause } from "./session.js";
+import { downloadFilingCard, downloadFilingSelect, downloadUndoCard } from "./dom.js";
+import { finishSession, sessionSummaryDialogController, startSelectedSession, toggleSessionPause } from "./session.js";
 import { persistNow, setSaveStatus } from "./persistence.js";
 
 export async function updateDownloadFilingSetting() {
@@ -85,7 +85,7 @@ export async function showMainWindow() {
 
 export async function quitFromTray() {
   appState.quitRequested = true;
-  if (sessionSummaryDialog.open) sessionSummaryDialog.close();
+  sessionSummaryDialogController.close();
   if (appState.activeSession) await finishSession(false);
   await appState.writeQueue;
   await invoke("quit_from_tray");

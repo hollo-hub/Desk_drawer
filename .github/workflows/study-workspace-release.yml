@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build-windows:
-    name: Build Desk Drawer Study installer
+    name: Build Desk Drawer Study executable and installer
     runs-on: windows-latest
     env:
       DOWNLOADS_TOKEN: ${{ secrets.DESK_DRAWER_DOWNLOADS_TOKEN }}
@@ -65,9 +65,15 @@ jobs:
         working-directory: study-workspace
         run: npm run tauri -- build --bundles nsis
 
-      - name: Verify Windows installer
+      - name: Verify Windows executable and installer
         shell: pwsh
         run: |
+          $app = Get-Item 'study-workspace/src-tauri/target/release/desk-drawer-study.exe' -ErrorAction Stop
+          if ($app.Length -le 0) {
+            throw "Standalone application executable is empty: $($app.FullName)"
+          }
+          Write-Host "$($app.FullName) ($($app.Length) bytes)"
+
           $installers = @(Get-ChildItem 'study-workspace/src-tauri/target/release/bundle/nsis/*.exe' -ErrorAction Stop)
           if ($installers.Count -eq 0) {
             throw "Expected a Windows NSIS .exe installer."
@@ -77,15 +83,15 @@ jobs:
             Write-Host "$($_.FullName) ($($_.Length) bytes)"
           }
 
-      - name: Keep installer as workflow artifact
+      - name: Keep standalone executable as workflow artifact
         uses: actions/upload-artifact@v4
         with:
           name: Desk-Drawer-Study-${{ steps.release.outputs.version }}-Windows-x64
-          path: study-workspace/src-tauri/target/release/bundle/nsis/*.exe
+          path: study-workspace/src-tauri/target/release/desk-drawer-study.exe
           if-no-files-found: error
           retention-days: 30
 
-      - name: Publish installer to public Downloads release
+      - name: Publish standalone executable to public Downloads release
         if: env.DOWNLOADS_TOKEN != ''
         uses: softprops/action-gh-release@v2
         with:
@@ -97,6 +103,9 @@ jobs:
           body: |
             Desk Drawer Study ${{ steps.release.outputs.version }} for Windows.
 
+            Download the standalone app executable. It requires the WebView2
+            Runtime.
+
             What's new: empty-by-default course desk; interactive onboarding;
             animated pixel ghost buddy with rotating messages; stopwatch and
             countdown halo; searchable Markdown notes; tasks and grouped
@@ -104,5 +113,5 @@ jobs:
             configurable notifications/sounds; quieter autosave feedback.
 
             This is a separate app from the main Desk Drawer desktop companion.
-          files: study-workspace/src-tauri/target/release/bundle/nsis/*.exe
+          files: study-workspace/src-tauri/target/release/desk-drawer-study.exe
           make_latest: true

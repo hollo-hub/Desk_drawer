@@ -29,7 +29,7 @@ a course and starting focus feel like using a personal desktop game cartridge.
 
 - The empty-by-default first launch
 - The one-time interactive guide
-- The Desk Buddy ghost
+- The Desk Buddy sprite pack
 - A one-action route from course selection to study start
 - Local-first storage and explicit save errors
 - Searchable Markdown notes and practical resource handling
@@ -39,7 +39,7 @@ a course and starting focus feel like using a personal desktop game cartridge.
 | Area | Proposed baseline | Creative decision |
 |---|---|---|
 | Retro reference | Cozy 16-bit study console | **TBD:** game, 90s software, early web, or another reference |
-| Character | Pixel ghost buddy | **TBD:** final character, personality, and approved sprite |
+| Character | Pixel buddy pack | **TBD:** final character, personality, and approved sprite |
 | Display font | Bitmap/pixel font for timer and labels | **TBD:** font file and license |
 | Reading font | Readable system or humanist sans-serif | **TBD:** final body font |
 | Corners | Square or very small radius | **TBD:** exact radius |
@@ -80,7 +80,7 @@ selection, completion, warnings, or errors.
 ### Buddy
 
 - Use crisp nearest-neighbor scaling.
-- Keep the ghost decorative and announce text through the existing live region.
+- Keep the buddy decorative and announce text through the existing live region.
 - Define final frames for idle, blink, focus, done, nudge, and paused.
 - Use animation to communicate state, not as background decoration.
 - Provide a static reduced-motion presentation.
@@ -151,7 +151,7 @@ Before implementation, provide:
 1. Which retro era or platform are we referencing?
 2. Should the product feel more like software, a game, or a notebook?
 3. Which current elements specifically feel AI-generated or generic?
-4. Is the ghost final, and what personality should it communicate?
+4. Which character should the buddy represent, and what personality should it communicate?
 5. Should the timer feel like a HUD, a stopwatch, or a desk clock?
 6. Should Notes look like a notebook, editor, or file system?
 7. How much animation is acceptable during a focused session?

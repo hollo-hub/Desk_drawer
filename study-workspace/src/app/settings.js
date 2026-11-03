@@ -2,6 +2,15 @@ import { appState } from "./state.js";
 import { isPermissionGranted, requestPermission } from "@tauri-apps/plugin-notification";
 import { clickSound, colorSchemePreference, confirmSound, settingsDialog, settingsGearButton, soundEffectsSetting } from "./dom.js";
 import { scheduleSave, setSaveStatus } from "./persistence.js";
+import { createDialogController } from "./dialog.js";
+
+const settingsDialogController = createDialogController({
+  dialog: settingsDialog,
+  closeButton: document.querySelector("#close-settings"),
+  initialFocus: () => document.querySelector("#theme-setting"),
+  fallbackFocus: settingsGearButton,
+  onClose: () => settingsGearButton.setAttribute("aria-expanded", "false"),
+});
 
 export function applyAppearance() {
   const choice = appState.appData?.settings.theme ?? "system";
@@ -95,5 +104,5 @@ export function openSettings() {
   if (!appState.appData) return;
   applyAppearance();
   settingsGearButton.setAttribute("aria-expanded", "true");
-  settingsDialog.showModal();
+  settingsDialogController.open();
 }

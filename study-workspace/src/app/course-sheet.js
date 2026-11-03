@@ -5,6 +5,47 @@ import { prepareCourseResources } from "../resource-model.js";
 import { deleteButton, deleteHint, form, formMessage, sheet } from "./dom.js";
 import { findCourse, render } from "./workspace.js";
 import { persistNow, scheduleSave } from "./persistence.js";
+import { createDialogController } from "./dialog.js";
+
+let baselineCourseSnapshot = "";
+
+function courseFormSnapshot() {
+  if (!appState.editing) return "";
+  return JSON.stringify({
+    name: document.querySelector("#course-name").value.trim(),
+    filingKeywords: document.querySelector("#course-filing-keywords").value,
+    folder: document.querySelector("#course-folder").value.trim(),
+    links: document.querySelector("#course-links").value,
+    color: appState.editing.color,
+    additionalFolders: appState.editing.additionalFolders,
+    apps: appState.editing.apps,
+    resourceGroups: appState.editing.resourceGroups,
+    resourceAssignments: appState.editing.resourceAssignments,
+  });
+}
+
+const courseDialogController = createDialogController({
+  dialog: sheet,
+  closeButton: document.querySelector("#close-sheet"),
+  initialFocus: () => document.querySelector("#course-name"),
+  fallbackFocus: () => document.querySelector("#add-course"),
+  beforeClose: async () => {
+    if (
+      courseFormSnapshot() !== baselineCourseSnapshot &&
+      !window.confirm("You have unsaved changes. Close this editor and save them?")
+    ) return false;
+    const saved = await persistNow();
+    if (!saved) {
+      showFormMessage("The course changes could not be saved.", "error");
+      return false;
+    }
+    return true;
+  },
+  onClose: () => {
+    appState.editing = null;
+    baselineCourseSnapshot = "";
+  },
+});
 
 export function openCourseSheet(course, isNew) {
   if (!appState.appData) return;
@@ -19,9 +60,8 @@ export function openCourseSheet(course, isNew) {
   showFormMessage("");
   renderColorOptions();
   renderDeleteState();
-
-  if (!sheet.open) sheet.showModal();
-  document.querySelector("#course-name").focus();
+  baselineCourseSnapshot = courseFormSnapshot();
+  courseDialogController.open();
 }
 
 export async function chooseCourseFolder() {
@@ -175,9 +215,7 @@ export function updateCourseFromForm() {
 }
 
 export async function closeCourseSheet() {
-  await persistNow();
-  if (sheet.open) sheet.close();
-  appState.editing = null;
+  await courseDialogController.requestClose();
 }
 
 export function showFormMessage(message, state = "") {
@@ -198,8 +236,7 @@ export async function deleteSelectedCourse() {
   appState.appData.tasks = appState.appData.tasks.filter((task) => task.courseId !== course.id);
   appState.appData.notes = appState.appData.notes.filter((note) => note.courseId !== course.id);
   appState.selectedCourseId = appState.appData.courses[0].id;
-  appState.editing = null;
   render();
-  sheet.close();
+  courseDialogController.close();
   await persistNow();
 }

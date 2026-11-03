@@ -10,7 +10,7 @@
 - [ ] 25 min session: minimise 10 minutes, restore; time is correct
 - [ ] Pause 1 minute then resume; end time shifts correctly
 - [ ] End early under 5 seconds logs nothing; later than that logs actual minutes
-- [ ] Halo arc shortens with time remaining, stays constant in opacity, and is gone at zero; cat hops at completion
+- [ ] Halo arc shortens with time remaining, stays constant in opacity, and is gone at zero; the buddy celebrates at completion
 - [ ] Window resizes, minimises, maximises, remembers size; closing quits cleanly
 - [ ] Theme follows system and the toggle overrides it
 - [ ] Dark appearance updates the full interface; system appearance tracks OS changes
@@ -34,7 +34,7 @@
 2. Would you use it before every study session? What would stop you?
 3. What felt pointless, confusing or slow?
 4. What do you already do by hand that is missing here (tabs, folders, notes)?
-5. Is the cat helpful, distracting, or both?
+5. Is the buddy helpful, distracting, or both?
 6. Would you install it or recommend it? Why or why not?
 
 ## Critique template (copy per reviewer)
@@ -49,4 +49,4 @@ One thing to add, one thing to cut: ____
 ## Remaining validation
 - The configured Windows NSIS installer still needs to be built and tested on Windows.
 - The two-week real-use checkpoint must be completed before deciding whether to continue.
-- Final cat artwork and a contrast review remain separate polish work.
+- Additional buddy sprite packs can be added as independent art changes.

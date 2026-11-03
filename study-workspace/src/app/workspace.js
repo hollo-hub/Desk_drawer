@@ -1,12 +1,13 @@
 import { appState } from "./state.js";
 import { COURSE_COLORS, daysSinceLastStudy, formatMinutes, weeklyMinutes } from "../course-model.js";
+import { readableTextOn } from "../../../src/core/theme-contrast.js";
 import { invoke } from "@tauri-apps/api/core";
 import { normalizeTimerLength } from "../timer-model.js";
 import { prepareAppNotes } from "../note-model.js";
 import { prepareCourseResources } from "../resource-model.js";
 import { prepareStudyData } from "../study/study-data-model.js";
 import { renderStudyHub } from "./study-hub.js";
-import { appPages, catBubble, courseList, courseTitle, emptyAddCourseButton, guideCard, noteContentInput, noteCreateButton, noteDeleteButton, noteSearchInput, noteTitleInput, notesAddCourseButton, notesCourseSelect, notesEmptyState, notesWorkspace, pageNavButtons, reducedMotionPreference, resourceGroupForm, resourceLibrary, resourceLinkForm, resourcesAddCourseButton, resourcesCourseSelect, resourcesEmptyState, stageHint, taskForm, tasksAddCourseButton, tasksCourseSelect, tasksEmptyState, timerActions, timerDisplay, timerLengths } from "./dom.js";
+import { appPages, buddyBubble, courseList, courseTitle, emptyAddCourseButton, guideCard, noteContentInput, noteCreateButton, noteDeleteButton, noteSearchInput, noteTitleInput, notesAddCourseButton, notesCourseSelect, notesEmptyState, notesWorkspace, pageNavButtons, reducedMotionPreference, resourceGroupForm, resourceLibrary, resourceLinkForm, resourcesAddCourseButton, resourcesCourseSelect, resourcesEmptyState, stageHint, taskForm, tasksAddCourseButton, tasksCourseSelect, tasksEmptyState, timerActions, timerDisplay, timerLengths } from "./dom.js";
 import { applyAppearance } from "./settings.js";
 import { explainSessionLock, updateLengthSelection, updateTimerControls } from "./session.js";
 import { initializeBuddy, showCourseNudge, showRandomBuddyLine, updateReducedMotionPreference } from "./buddy.js";
@@ -183,16 +184,17 @@ export function renderSelectedCourse() {
         : "Choose a course below, or edit one to set up its folder and links.";
   emptyAddCourseButton.hidden = !appState.appData || hasCourses;
   emptyAddCourseButton.textContent = "Create your first course";
-  catBubble.hidden = !course;
+  buddyBubble.hidden = !course;
   document.querySelector(".stage").dataset.empty = String(Boolean(appState.appData && !hasCourses));
   document.querySelector(".course-dock").dataset.empty = String(Boolean(appState.appData && !hasCourses));
   timerDisplay.hidden = Boolean(appState.appData && !hasCourses);
   timerLengths.hidden = Boolean(appState.appData && !hasCourses);
   timerActions.hidden = Boolean(appState.appData && !hasCourses);
   document.querySelector("#edit-course").hidden = !hasCourses;
-  document
-    .querySelector(".stage")
-    .style.setProperty("--course-color", course?.color ?? COURSE_COLORS[0].value);
+  const courseColor = course?.color ?? COURSE_COLORS[0].value;
+  document.body.style.setProperty("--course-color", courseColor);
+  document.body.style.setProperty("--course-color-contrast", readableTextOn(courseColor));
+  document.querySelector(".stage").style.setProperty("--course-color", courseColor);
   renderWorkspacePages();
   updateReducedMotionPreference();
   document.querySelector("#edit-course").disabled = !course || !appState.appData || appState.appData.courses.length === 0;

@@ -36,6 +36,12 @@ export function contrastRatio(foregroundValue, backgroundValue, backdropValue = 
   return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
 }
 
+export function readableTextOn(backgroundValue) {
+  const blackContrast = contrastRatio('#000000', backgroundValue);
+  const whiteContrast = contrastRatio('#ffffff', backgroundValue);
+  return blackContrast >= whiteContrast ? '#000000' : '#ffffff';
+}
+
 function pairRatios(foreground, background, backdropValues) {
   return backdropValues.map((backdrop) => ({
     backdrop,

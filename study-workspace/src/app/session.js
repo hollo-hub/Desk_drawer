@@ -4,11 +4,19 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api/core";
 import { isPermissionGranted, requestPermission, sendNotification } from "@tauri-apps/plugin-notification";
 import { launchMessage } from "../launch-message.js";
-import { applyCustomLengthButton, catBubble, customMinutesInput, endSessionButton, haloCircumference, pauseSessionButton, sessionSummaryDialog, sessionSummaryInput, startSessionButton, timerDisplay, timerHalo, timerHaloProgress, timerLengthButtons } from "./dom.js";
+import { applyCustomLengthButton, buddyBubble, customMinutesInput, endSessionButton, haloCircumference, pauseSessionButton, sessionSummaryDialog, sessionSummaryInput, startSessionButton, timerDisplay, timerHalo, timerHaloProgress, timerLengthButtons } from "./dom.js";
 import { findCourse, renderCourses } from "./workspace.js";
 import { persistNow, scheduleSave, setSaveStatus } from "./persistence.js";
 import { renderHistory } from "./history.js";
-import { setCatState } from "./buddy.js";
+import { setBuddyState } from "./buddy.js";
+import { createDialogController } from "./dialog.js";
+
+export const sessionSummaryDialogController = createDialogController({
+  dialog: sessionSummaryDialog,
+  closeButton: document.querySelector("#close-session-summary"),
+  initialFocus: sessionSummaryInput,
+  fallbackFocus: startSessionButton,
+});
 
 export async function startSelectedSession() {
   const course = findCourse(appState.selectedCourseId);
@@ -41,9 +49,9 @@ export async function startSelectedSession() {
     console.error("Could not register the active session with the tray.", error);
     setSaveStatus(`Tray session state could not be updated: ${String(error)}`, "error");
   });
-  setCatState("focus");
-  catBubble.textContent = `Timer's running. I'll be here.`;
-  delete catBubble.dataset.state;
+  setBuddyState("focus");
+  buddyBubble.textContent = `Timer's running. I'll be here.`;
+  delete buddyBubble.dataset.state;
   beginTimerUpdates();
   updateTimerControls();
 
@@ -55,17 +63,17 @@ export async function startSelectedSession() {
     if (appState.activeSession?.id === sessionId) {
       const message = launchMessage(report);
       const emptyCourse = !report.folderOpened && report.linksOpened === 0 && report.appsOpened === 0;
-      catBubble.textContent =
+      buddyBubble.textContent =
         report.failures.length > 0 || emptyCourse
           ? `${message} Your timer is still running.`
           : message;
-      catBubble.dataset.state = report.failures.length > 0 ? "error" : "success";
+      buddyBubble.dataset.state = report.failures.length > 0 ? "error" : "success";
     }
   } catch (error) {
     console.error("Could not open course resources.", error);
     if (appState.activeSession?.id === sessionId) {
-      catBubble.textContent = `Could not open ${course.name}. Check the folder and links in Edit. Your timer is still running.`;
-      catBubble.dataset.state = "error";
+      buddyBubble.textContent = `Could not open ${course.name}. Check the folder and links in Edit. Your timer is still running.`;
+      buddyBubble.dataset.state = "error";
     }
   } finally {
     appState.launchInProgress = false;
@@ -75,7 +83,7 @@ export async function startSelectedSession() {
 
 export function setSessionLength(seconds, saveAsDefault) {
   if (appState.activeSession || appState.launchInProgress) {
-    catBubble.textContent = "Wait for the session to start or finish it before changing its length.";
+    buddyBubble.textContent = "Wait for the session to start or finish it before changing its length.";
     return;
   }
 
@@ -94,7 +102,7 @@ export function setSessionLength(seconds, saveAsDefault) {
 
 export function selectStopwatchMode() {
   if (appState.activeSession || appState.launchInProgress) {
-    catBubble.textContent = "Wait for the session to finish before changing its timer.";
+    buddyBubble.textContent = "Wait for the session to finish before changing its timer.";
     return;
   }
 
@@ -107,13 +115,13 @@ export function selectStopwatchMode() {
 
 export function applyCustomLength() {
   if (appState.activeSession || appState.launchInProgress) {
-    catBubble.textContent = "Wait for the session to start or finish it before changing its length.";
+    buddyBubble.textContent = "Wait for the session to start or finish it before changing its length.";
     return;
   }
 
   const seconds = parseCustomMinutes(customMinutesInput.value);
   if (seconds === null) {
-    catBubble.textContent = "Choose a whole number of minutes from 1 to 180.";
+    buddyBubble.textContent = "Choose a whole number of minutes from 1 to 180.";
     customMinutesInput.focus();
     return;
   }
@@ -166,7 +174,7 @@ export function updateTimerControls() {
 }
 
 export function explainSessionLock() {
-  catBubble.textContent = appState.launchInProgress && !appState.activeSession
+  buddyBubble.textContent = appState.launchInProgress && !appState.activeSession
     ? "Your session is starting. Wait a moment before changing courses or editing them."
     : "Finish or end this session before changing courses or editing them.";
 }
@@ -244,9 +252,9 @@ export function toggleSessionPause() {
     );
     window.clearInterval(appState.timerInterval);
     appState.timerInterval = null;
-    catBubble.textContent = "Paused.";
-    setCatState("paused");
-    delete catBubble.dataset.state;
+    buddyBubble.textContent = "Paused.";
+    setBuddyState("paused");
+    delete buddyBubble.dataset.state;
     updateTimerDisplay();
     updateTimerControls();
     return;
@@ -267,9 +275,9 @@ export function toggleSessionPause() {
     );
     window.clearInterval(appState.timerInterval);
     appState.timerInterval = null;
-    catBubble.textContent = "Paused.";
-    setCatState("paused");
-    delete catBubble.dataset.state;
+    buddyBubble.textContent = "Paused.";
+    setBuddyState("paused");
+    delete buddyBubble.dataset.state;
     updateTimerDisplay();
     updateTimerControls();
     return;
@@ -282,9 +290,9 @@ export function toggleSessionPause() {
     appState.activeSession.deadlineMs = Date.now() + appState.activeSession.pausedRemainingMs;
     appState.activeSession.pausedRemainingMs = null;
   }
-  catBubble.textContent = "Back to it.";
-  setCatState("focus");
-  delete catBubble.dataset.state;
+  buddyBubble.textContent = "Back to it.";
+  setBuddyState("focus");
+  delete buddyBubble.dataset.state;
   beginTimerUpdates();
   updateTimerControls();
 }
@@ -342,17 +350,17 @@ export async function finishSession(completed) {
         ? `${record.actualSec} sec`
         : `${Math.floor(record.actualSec / 60)} min`;
     if (session.countUp) {
-      catBubble.textContent = `Session ended. ${loggedDuration} logged.`;
+      buddyBubble.textContent = `Session ended. ${loggedDuration} logged.`;
     } else if (didComplete) {
-      catBubble.textContent = `Nice work: ${sessionLengthLabel(record.plannedSec)} on ${findCourse(session.courseId)?.name ?? "your course"}.`;
+      buddyBubble.textContent = `Nice work: ${sessionLengthLabel(record.plannedSec)} on ${findCourse(session.courseId)?.name ?? "your course"}.`;
     } else {
-      catBubble.textContent = `Stopped early. ${loggedDuration} logged.`;
+      buddyBubble.textContent = `Stopped early. ${loggedDuration} logged.`;
     }
-    setCatState(didComplete ? "done" : "idle");
+    setBuddyState(didComplete ? "done" : "idle");
     window.clearTimeout(appState.doneStateTimer);
     if (didComplete) {
       appState.doneStateTimer = window.setTimeout(() => {
-        if (!appState.activeSession) setCatState("idle");
+        if (!appState.activeSession) setBuddyState("idle");
       }, 4000);
     }
     await persistNow();
@@ -360,14 +368,14 @@ export async function finishSession(completed) {
      void notifySessionEnd(findCourse(session.courseId)?.name ?? "your course");
     }
     sessionSummaryInput.value = "";
-    if (!appState.quitRequested) sessionSummaryDialog.showModal();
+    if (!appState.quitRequested) sessionSummaryDialogController.open();
   } else {
-    catBubble.textContent = "Stopped early. Under 5 seconds, so no session was logged.";
-    setCatState("idle");
+    buddyBubble.textContent = "Stopped early. Under 5 seconds, so no session was logged.";
+    setBuddyState("idle");
   }
   updateTimerControls();
   if (appState.launchInProgress) {
-    catBubble.textContent += " Your course resources are still opening.";
+    buddyBubble.textContent += " Your course resources are still opening.";
   }
 }
 
@@ -402,5 +410,5 @@ export async function saveSessionSummary(event) {
     renderHistory();
     await persistNow();
   }
-  if (sessionSummaryDialog.open) sessionSummaryDialog.close();
+  sessionSummaryDialogController.close();
 }

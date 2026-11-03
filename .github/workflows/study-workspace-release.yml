@@ -80,18 +80,23 @@ jobs:
           }
           $installers | ForEach-Object {
             if ($_.Length -le 0) { throw "Installer is empty: $($_.FullName)" }
+            if ($_.Length -lt 100MB) {
+              throw "Expected the offline WebView2 Runtime in the installer, but it is unexpectedly small: $($_.FullName)"
+            }
             Write-Host "$($_.FullName) ($($_.Length) bytes)"
           }
 
-      - name: Keep standalone executable as workflow artifact
+      - name: Keep Windows app and installer as workflow artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Desk-Drawer-Study-${{ steps.release.outputs.version }}-Windows-x64
-          path: study-workspace/src-tauri/target/release/desk-drawer-study.exe
+          path: |
+            study-workspace/src-tauri/target/release/desk-drawer-study.exe
+            study-workspace/src-tauri/target/release/bundle/nsis/*-setup.exe
           if-no-files-found: error
           retention-days: 30
 
-      - name: Publish standalone executable to public Downloads release
+      - name: Publish Windows app and installer to public Downloads release
         if: env.DOWNLOADS_TOKEN != ''
         uses: softprops/action-gh-release@v2
         with:
@@ -101,17 +106,18 @@ jobs:
           target_commitish: main
           name: Desk Drawer Study ${{ steps.release.outputs.version }}
           body: |
-            Desk Drawer Study ${{ steps.release.outputs.version }} for Windows.
+            Desk Drawer Study ${{ steps.release.outputs.version }} for Windows x64.
 
-            Download the standalone app executable. It requires the WebView2
-            Runtime.
+            **Recommended:** download `Desk Drawer Study_*_x64-setup.exe`. This NSIS installer includes the WebView2 Runtime and can install it without an internet connection when it is missing.
 
-            What's new: empty-by-default course desk; interactive onboarding;
-            animated pixel ghost buddy with rotating messages; stopwatch and
-            countdown halo; searchable Markdown notes; tasks and grouped
-            resources; session history and weekly stats; dark mode and
-            configurable notifications/sounds; quieter autosave feedback.
+            The standalone `desk-drawer-study.exe` is also available, but requires the WebView2 Runtime to already be installed.
 
-            This is a separate app from the main Desk Drawer desktop companion.
-          files: study-workspace/src-tauri/target/release/desk-drawer-study.exe
+            **Windows security:** this build is unsigned. Windows SmartScreen may show a warning. A trusted code-signing certificate is required to reduce or avoid that warning.
+
+            Highlights: centered accessible dialogs; higher-contrast themed controls; buddy sprite packs; and a responsive, fixed-height Desk.
+
+            Source code: https://github.com/hollo-hub/Desk_drawer/tree/study-v3-release
+          files: |
+            study-workspace/src-tauri/target/release/desk-drawer-study.exe
+            study-workspace/src-tauri/target/release/bundle/nsis/*-setup.exe
           make_latest: true

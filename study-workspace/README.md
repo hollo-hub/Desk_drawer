@@ -295,7 +295,11 @@ The v2 app was checked with:
 - The public repository contains release notes and installers, not source code.
 - The v2.0.0 Windows installer is available from the
   [Desk Drawer Study release](https://github.com/hollo-hub/Desk_drawer-downloads/releases/tag/v2.0.0).
-- The source branch is `desk-drawer-study-v2`.
+- The v3.0.1 Windows setup installer bundles the WebView2 Runtime for offline
+  installation. It is currently unsigned, so Windows SmartScreen may warn.
+  Avoiding that warning requires signing with a trusted code-signing
+  certificate.
+- The v3 source branch is `study-v3-release`.
 - The Windows release workflow is
   `.github/workflows/study-workspace-release.yml`.
 - A `study-vX.Y.Z` tag runs frontend tests, Rust checks, the Windows build, and
